@@ -1,12 +1,11 @@
-# ReactJS GitHub Browser
-just a test for ReactJS GitHub Browser SPA :)
+# just some html5 experiments
 
 ####Familiar with Git?#####
 Checkout this repo, install dependencies, then start the gulp process with the following:
 
 ```
-	> git clone git@github.com:AceDZN/github_browser.git
-	> cd github_browser
+	> git clone git@github.com:AceDZN/html5_experiment.git
+	> cd html5_experiment
 	> npm install
 ```
   for development run
@@ -17,4 +16,3 @@ Checkout this repo, install dependencies, then start the gulp process with the f
   ```
   > webpack
   ```
-# html5_experiment

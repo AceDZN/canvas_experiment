@@ -1,0 +1,21 @@
+{
+  "name": "CanvasExperiments",
+  "version": "1.0.0",
+  "description": "this is just a github browser",
+  "main": "index.html",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Alex Sindalovsky",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-core": "5.8.*",
+    "babel-loader": "5.3.*",
+    "node-sass": "^3.4.2",
+    "sass-loader": "^3.2.0",
+    "webpack": "^1.12.14"
+  },
+  "dependencies": {
+    "jquery": "^2.2.2"
+  }
+}
