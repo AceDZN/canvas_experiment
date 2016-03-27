@@ -13,6 +13,5 @@ module.exports = (
       <Route name="bouncingBall" path="/bouncingBall" component={bouncingBall} />
       <IndexRedirect to="/bouncingBall" />
     </Route>
-
   </Router>
 )

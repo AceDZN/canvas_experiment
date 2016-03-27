@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import Navbar from './Navbar.jsx';
+import AceLogo from './AceLogo.jsx';
 class App extends Component {
   constructor(props){
     super(props);
@@ -18,6 +19,7 @@ class App extends Component {
             </div>
           </div>
         </div>
+        <AceLogo />
       </div>
     )
   }
