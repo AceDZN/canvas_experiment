@@ -5,12 +5,14 @@ import hashHistory from 'react-router/lib/hashHistory'
 import IndexRedirect from 'react-router/lib/IndexRedirect'
 
 var App = require('./components/App.jsx');
-var bouncingBall = require('./components/BouncingBall.jsx');
+var BouncingBall = require('./components/BouncingBall.jsx');
+var PaintBrush = require('./components/PaintBrush.jsx');
 
 module.exports = (
   <Router history={hashHistory}>
     <Route path="/" component={App}>
-      <Route name="bouncingBall" path="/bouncingBall" component={bouncingBall} />
+      <Route name="bouncingBall" path="/bouncingBall" component={BouncingBall} />
+      <Route name="paintBrush" path="/paintBrush" component={PaintBrush} />
       <IndexRedirect to="/bouncingBall" />
     </Route>
   </Router>

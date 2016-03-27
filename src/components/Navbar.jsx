@@ -38,7 +38,13 @@ class Navbar extends Component {
                   <li className={this.props.current == '/bouncingBall' ? "active" : ""}>
                     <Link to="bouncingBall">
                       Bouncing Ball
-                      <span className="sr-only">(current)</span>
+                      <span className="sr-only">{this.props.current == '/bouncingBall' ? "(current)" : ""}</span>
+                    </Link>
+                  </li>
+                  <li className={this.props.current == '/paintBrush' ? "active" : ""}>
+                    <Link to="paintBrush">
+                      Paint Brush
+                      <span className="sr-only">{this.props.current == '/paintBrush' ? "(current)" : ""}</span>
                     </Link>
                   </li>
                 </ul>
