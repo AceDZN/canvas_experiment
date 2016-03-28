@@ -97,7 +97,7 @@ button.btn {
 }
 .preview-box{
   display:none;
-  background: white;
+  background: #F9F9F9;
   border: 1px solid #c0c0c0;
   width: 55%;
   transform: rotate(-7deg);

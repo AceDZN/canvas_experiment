@@ -19702,7 +19702,8 @@
 	var _reactRouterLibIndexRedirect2 = _interopRequireDefault(_reactRouterLibIndexRedirect);
 
 	var App = __webpack_require__(204);
-	var bouncingBall = __webpack_require__(208);
+	var BouncingBall = __webpack_require__(208);
+	var PaintBrush = __webpack_require__(209);
 
 	module.exports = _react2['default'].createElement(
 	  _reactRouterLibRouter2['default'],
@@ -19710,7 +19711,8 @@
 	  _react2['default'].createElement(
 	    _reactRouterLibRoute2['default'],
 	    { path: '/', component: App },
-	    _react2['default'].createElement(_reactRouterLibRoute2['default'], { name: 'bouncingBall', path: '/bouncingBall', component: bouncingBall }),
+	    _react2['default'].createElement(_reactRouterLibRoute2['default'], { name: 'bouncingBall', path: '/bouncingBall', component: BouncingBall }),
+	    _react2['default'].createElement(_reactRouterLibRoute2['default'], { name: 'paintBrush', path: '/paintBrush', component: PaintBrush }),
 	    _react2['default'].createElement(_reactRouterLibIndexRedirect2['default'], { to: '/bouncingBall' })
 	  )
 	);
@@ -23919,7 +23921,21 @@
 	                      _react2['default'].createElement(
 	                        'span',
 	                        { className: 'sr-only' },
-	                        '(current)'
+	                        this.props.current == '/bouncingBall' ? "(current)" : ""
+	                      )
+	                    )
+	                  ),
+	                  _react2['default'].createElement(
+	                    'li',
+	                    { className: this.props.current == '/paintBrush' ? "active" : "" },
+	                    _react2['default'].createElement(
+	                      _reactRouterLibLink2['default'],
+	                      { to: 'paintBrush' },
+	                      'Paint Brush',
+	                      _react2['default'].createElement(
+	                        'span',
+	                        { className: 'sr-only' },
+	                        this.props.current == '/paintBrush' ? "(current)" : ""
 	                      )
 	                    )
 	                  )
@@ -24327,6 +24343,235 @@
 
 	exports["default"] = BouncingBall;
 	module.exports = exports["default"];
+
+/***/ },
+/* 209 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	Object.defineProperty(exports, '__esModule', {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var PaintBrush = (function (_Component) {
+	  _inherits(PaintBrush, _Component);
+
+	  function PaintBrush(props) {
+	    _classCallCheck(this, PaintBrush);
+
+	    _get(Object.getPrototypeOf(PaintBrush.prototype), 'constructor', this).call(this, props);
+	    this.state = {
+	      drawup: false,
+	      brushColor: 'black',
+	      brushSize: '5',
+	      previewVisible: false
+	    };
+	  }
+
+	  _createClass(PaintBrush, [{
+	    key: 'componentWillMount',
+	    value: function componentWillMount() {
+	      this.mouse = { x: 0, y: 0 };
+	      this.lastMouse = { x: 0, y: 0 };
+	    }
+	  }, {
+	    key: 'componentDidMount',
+	    value: function componentDidMount() {
+	      this.w = this.canvas.clientWidth;
+	      this.h = this.canvas.clientHeight;
+	      this.ctx = this.canvas.getContext('2d');
+	      this.ctx.canvas.width = this.w;
+	      this.ctx.canvas.height = this.h;
+	    }
+	  }, {
+	    key: 'getMousePosition',
+	    value: function getMousePosition(evt) {
+	      var rect = this.canvas.getBoundingClientRect();
+	      return {
+	        x: evt.clientX - rect.left,
+	        y: evt.clientY - rect.top
+	      };
+	    }
+	  }, {
+	    key: 'handleMouseMove',
+	    value: function handleMouseMove(e) {
+	      this.lastMouse.x = this.mouse.x;
+	      this.lastMouse.y = this.mouse.y;
+	      this.mouse = this.getMousePosition(e);
+	      this.draw('move');
+	    }
+	  }, {
+	    key: 'handleMouseDown',
+	    value: function handleMouseDown(e) {
+	      this.draw('down');
+	    }
+	  }, {
+	    key: 'handleMouseUp',
+	    value: function handleMouseUp(e) {
+	      this.draw('up');
+	    }
+	  }, {
+	    key: 'draw',
+	    value: function draw(a) {
+	      if (a == 'down') {
+	        this.setState({
+	          drawup: true
+	        });
+	      }
+	      if (a == 'up') {
+	        this.setState({
+	          drawup: false
+	        });
+	      }
+	      if (this.state.drawup) {
+	        this.setState({ previewVisible: false });
+	        this.ctx.beginPath();
+	        this.ctx.moveTo(this.lastMouse.x, this.lastMouse.y);
+	        this.ctx.lineTo(this.mouse.x, this.mouse.y);
+	        this.ctx.strokeStyle = this.state.brushColor;
+	        this.ctx.lineWidth = this.state.brushSize;
+	        this.ctx.stroke();
+	        this.ctx.closePath();
+	      }
+	    }
+	  }, {
+	    key: 'handleSave',
+	    value: function handleSave(e) {
+
+	      var dataUrl = this.canvas.toDataURL();
+	      this.setState({
+	        dataUrl: dataUrl
+	      });
+	      this.setState({ previewVisible: true });
+	    }
+	  }, {
+	    key: 'handleClear',
+	    value: function handleClear(e) {
+	      var ok = confirm("Clear it?");
+	      if (ok) {
+	        this.ctx.clearRect(0, 0, this.w, this.h);
+	        this.setState({ previewVisible: false });
+	      }
+	    }
+	  }, {
+	    key: 'handleColorPicker',
+	    value: function handleColorPicker(e) {
+	      this.setState({
+	        brushColor: e.target.value
+	      });
+	    }
+	  }, {
+	    key: 'handleBrushSize',
+	    value: function handleBrushSize(e) {
+	      this.setState({
+	        brushSize: e.target.value
+	      });
+	    }
+	  }, {
+	    key: 'render',
+	    value: function render() {
+	      var _this = this;
+
+	      return _react2['default'].createElement(
+	        'div',
+	        { className: 'page' },
+	        _react2['default'].createElement(
+	          'div',
+	          { className: 'action-buttons row' },
+	          _react2['default'].createElement(
+	            'div',
+	            { className: 'col-sm-9 text-left form-inline' },
+	            _react2['default'].createElement(
+	              'div',
+	              { className: 'form-group' },
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'input-group' },
+	                _react2['default'].createElement(
+	                  'span',
+	                  { className: 'input-group-addon btn' },
+	                  _react2['default'].createElement(
+	                    'label',
+	                    { htmlFor: 'color' },
+	                    'Select Color'
+	                  )
+	                ),
+	                _react2['default'].createElement('input', { type: 'color', name: 'color', className: 'form-control', id: 'color', onChange: this.handleColorPicker.bind(this) })
+	              )
+	            ),
+	            _react2['default'].createElement(
+	              'div',
+	              { className: 'form-group' },
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'input-group' },
+	                _react2['default'].createElement(
+	                  'span',
+	                  { className: 'input-group-addon' },
+	                  'Brush Size:'
+	                ),
+	                _react2['default'].createElement('input', { type: 'range', min: '1', max: '20', name: 'brush', className: 'form-control', id: 'color', onChange: this.handleBrushSize.bind(this) })
+	              )
+	            )
+	          ),
+	          _react2['default'].createElement(
+	            'div',
+	            { className: 'col-sm-3 text-right' },
+	            _react2['default'].createElement(
+	              'button',
+	              { type: 'button', className: 'btn btn-primary', onClick: this.handleSave.bind(this) },
+	              'Save'
+	            ),
+	            _react2['default'].createElement(
+	              'button',
+	              { type: 'button', className: 'btn btn-danger', onClick: this.handleClear.bind(this) },
+	              'Clear'
+	            )
+	          )
+	        ),
+	        _react2['default'].createElement(
+	          'div',
+	          null,
+	          _react2['default'].createElement('canvas', { ref: function (c) {
+	              return _this.canvas = c;
+	            },
+	            onMouseMove: this.handleMouseMove.bind(this),
+	            onMouseDown: this.handleMouseDown.bind(this),
+	            onMouseUp: this.handleMouseUp.bind(this),
+	            onMouseOut: this.handleMouseUp.bind(this)
+	          })
+	        ),
+	        _react2['default'].createElement(
+	          'div',
+	          { className: this.state.previewVisible ? "preview-box active" : "preview-box" },
+	          _react2['default'].createElement('img', { ref: function (img) {
+	              return _this.preview = img;
+	            }, src: this.state.dataUrl, className: '' })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return PaintBrush;
+	})(_react.Component);
+
+	exports['default'] = PaintBrush;
+	module.exports = exports['default'];
 
 /***/ }
 /******/ ]);

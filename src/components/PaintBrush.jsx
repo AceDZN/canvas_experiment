@@ -24,12 +24,13 @@ class PaintBrush extends Component {
     this.ctx.canvas.height = this.h;
   }
   getMousePosition(evt) {
-        var rect = this.canvas.getBoundingClientRect();
-        return {
-          x: evt.clientX - rect.left,
-          y: evt.clientY - rect.top
-        };
-      }
+    var rect = this.canvas.getBoundingClientRect();
+    var root = document.documentElement;
+    return {
+      x: evt.clientX - rect.left - root.scrollLeft,
+      y: evt.clientY - rect.top - root.scrollTop
+    };
+  }
 
   handleMouseMove(e){
     this.lastMouse.x=this.mouse.x;
@@ -45,11 +46,13 @@ class PaintBrush extends Component {
   }
   draw(a){
     if(a == 'down'){
+      this.canvas.style.cursor = "pointer";
       this.setState({
         drawup:true
       });
     }
     if(a == 'up'){
+      this.canvas.style.cursor = "default";
       this.setState({
         drawup:false
       });
@@ -108,7 +111,7 @@ class PaintBrush extends Component {
               <span className="input-group-addon">
                 Brush Size:
               </span>
-              <input type="range" min="1" max="20" name="brush" className="form-control" id="color" onChange={this.handleBrushSize.bind(this)} />
+              <input type="range" min="1" max="20" name="brush" className="form-control" id="brush" onChange={this.handleBrushSize.bind(this)} />
             </div>
           </div>
         </div>
@@ -128,10 +131,6 @@ class PaintBrush extends Component {
       <div className={this.state.previewVisible ? "preview-box active" : "preview-box"}>
           <img ref={(img) => this.preview = img} src={this.state.dataUrl} className="" />
       </div>
-
-
-
-
     </div>
    );
   }
