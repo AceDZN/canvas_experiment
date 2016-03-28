@@ -7,7 +7,8 @@ class PaintBrush extends Component {
     this.state = {
       drawup: false,
       brushColor: 'black',
-      brushSize: '5'
+      brushSize: '5',
+      previewVisible: false
     }
   }
   componentWillMount(){
@@ -54,6 +55,7 @@ class PaintBrush extends Component {
       });
     }
     if(this.state.drawup){
+      this.setState({previewVisible:false});
       this.ctx.beginPath();
         this.ctx.moveTo(this.lastMouse.x,this.lastMouse.y);
         this.ctx.lineTo(this.mouse.x,this.mouse.y);
@@ -64,10 +66,19 @@ class PaintBrush extends Component {
     }
   }
   handleSave(e){
-    console.log("save");
+
+    let dataUrl = this.canvas.toDataURL();
+    this.setState({
+      dataUrl: dataUrl
+    });
+    this.setState({previewVisible:true});
   }
   handleClear(e){
-    console.log("clear");
+    var ok = confirm("Clear it?");
+    if (ok){
+      this.ctx.clearRect(0,0,this.w,this.h);
+      this.setState({previewVisible:false});
+    }
   }
   handleColorPicker(e){
     this.setState({
@@ -114,7 +125,13 @@ class PaintBrush extends Component {
           onMouseOut={this.handleMouseUp.bind(this)}
           />
       </div>
-      <img ref={(img) => this.preview = img} className="" />
+      <div className={this.state.previewVisible ? "preview-box active" : "preview-box"}>
+          <img ref={(img) => this.preview = img} src={this.state.dataUrl} className="" />
+      </div>
+
+
+
+
     </div>
    );
   }

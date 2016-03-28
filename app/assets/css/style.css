@@ -9,7 +9,6 @@ input[type=range]::-webkit-slider-runnable-track {
   background: -webkit-linear-gradient(-78deg, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 50%,rgba(255,255,255,1) 50%,rgba(0,0,0,1) 50%,rgba(0,0,0,1) 100%); /* Chrome10-25,Safari5.1-6 */
   background: linear-gradient(-188deg, rgba(255,255,255,1) 0%,rgba(255,255,255,1) 50%,rgba(255,255,255,1) 50%,rgba(0,0,0,1) 50%,rgba(0,0,0,1) 100%); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
   filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#000000',GradientType=1 ); /* IE6-9 fallback on horizontal gradient */
-
   border-radius: 25px;
   border: 0px solid #000101;
 }
@@ -56,6 +55,11 @@ input[type=range]::-ms-track {
   color: transparent;
 }
 
+
+img{
+  max-width:100%;
+}
+
 body{
   overflow-x: hidden;
 }
@@ -90,4 +94,18 @@ button.btn {
 }
 .action-buttons .form-group{
   margin-right:5px;
+}
+.preview-box{
+  display:none;
+  background: white;
+  border: 1px solid #c0c0c0;
+  width: 55%;
+  transform: rotate(-7deg);
+  position: absolute;
+  left: 30px;
+  bottom: 30px;
+  box-shadow: -5px -5px 10px #c0c0c0;
+}
+.preview-box.active{
+  display:block;
 }
