@@ -16,12 +16,35 @@ class Breakout extends Component {
       paddleWidth: 150,
       paddleHeight: 20,
       paddleX: 400,
-      paddleBottomOffset: 20
+      paddleCenter: 400+(150/2),
+      paddleBottomOffset: 50,
+      paddleBorder:{}
     }
   }
+
+  getPaddleBorders(){
+
+    var paddleTopY = this.h - this.state.paddleBottomOffset;
+    var paddleBottomY = paddleTopY + this.state.paddleHeight;
+    var paddleLeftX = this.state.paddleX;
+    var paddleRightX = paddleLeftX + this.state.paddleWidth;
+
+    this.setState({
+      paddleBorder:{
+        TopY: paddleTopY,
+        BottomY: paddleBottomY,
+        LeftX: paddleLeftX,
+        RightX: paddleRightX
+      }
+    });
+  }
+
   componentWillMount(){
 
   }
+
+
+
   componentDidMount() {
    this.w = this.canvas.clientWidth;
    this.h = this.canvas.clientHeight;
@@ -36,6 +59,8 @@ class Breakout extends Component {
     var x = this.state.ballX;
     var y = this.state.ballY;
 
+    this.getPaddleBorders();
+
     this.setState({
       ballX: (x+this.state.ballSpeedX),
       ballY: (y+this.state.ballSpeedY)
@@ -47,11 +72,6 @@ class Breakout extends Component {
   moveBall(){
     var xSpeed = this.state.ballSpeedX;
     var ySpeed = this.state.ballSpeedY;
-
-    var paddleTopY = this.h - this.state.paddleBottomOffset;
-    var paddleBottomY = paddleTopY + this.state.paddleHeight;
-    var paddleLeftX = this.state.paddleX;
-    var paddleRightX = paddleLeftX + this.state.paddleWidth;
 
     if(this.state.ballX < (this.state.ballSize)){
       xSpeed *= -1;
@@ -71,43 +91,35 @@ class Breakout extends Component {
         ballSpeedY: ySpeed
       })
     }
-    if(this.state.ballY > (this.h-this.state.ballSize )){
+    if(this.state.ballY > (this.h-this.state.ballSize)){
       this.ballReset()
     }
 
-    if(this.state.ballY > (paddleTopY-this.state.ballSize) &&
-      this.state.ballY < (paddleBottomY-this.state.ballSize) &&
-      this.state.ballX > (paddleLeftX-this.state.ballSize) &&
-      this.state.ballX < (paddleRightX-this.state.ballSize)
+    if(this.state.ballY > this.state.paddleBorder.TopY &&
+      this.state.ballY <  this.state.paddleBorder.BottomY &&
+      this.state.ballX >  this.state.paddleBorder.LeftX &&
+      this.state.ballX <  this.state.paddleBorder.RightX
     ){
+      let ballDistFromPaddleCenter = this.state.ballX - this.state.paddleCenter;
+
       ySpeed *= -1;
+      xSpeed = ballDistFromPaddleCenter * 0.35;
       this.setState({
-        ballSpeedY: ySpeed
+        ballSpeedY: ySpeed,
+        ballSpeedX: xSpeed
       })
+
+
+
+
+
     }
-
-
-
-
     this.drawRect(0,0,this.w,this.h,this.state.bgColor);
     this.drawBall(this.state.ballX, this.state.ballY, this.state.ballSize,this.state.ballColor);
     this.drawRect(this.state.paddleX,(this.h-this.state.paddleBottomOffset),this.state.paddleWidth,this.state.paddleHeight,this.state.paddleColor);
-
-
   }
 
 
-  drawRect(TLX,TLY,Width,Height,Fill){
-     this.ctx.fillStyle=Fill;
-     this.ctx.fillRect(TLX,TLY,Width,Height);
-  }
-
-  drawBall(ballX,ballY,ballSize,fill){
-    this.ctx.fillStyle=fill;
-    this.ctx.beginPath();
-    this.ctx.arc(ballX, ballY, ballSize, 0, Math.PI*2, true);
-    this.ctx.fill();
-  }
   handleBallColor(e){
     this.setState({
       ballColor: e.target.value
@@ -123,6 +135,17 @@ class Breakout extends Component {
       ballSize: e.target.value
     });
   }
+  drawRect(TLX,TLY,Width,Height,Fill){
+     this.ctx.fillStyle=Fill;
+     this.ctx.fillRect(TLX,TLY,Width,Height);
+  }
+
+  drawBall(ballX,ballY,ballSize,fill){
+    this.ctx.fillStyle=fill;
+    this.ctx.beginPath();
+    this.ctx.arc(ballX, ballY, ballSize, 0, Math.PI*2, true);
+    this.ctx.fill();
+  }
   getMousePosition(evt) {
     var rect = this.canvas.getBoundingClientRect();
     var root = document.documentElement;
@@ -137,16 +160,12 @@ class Breakout extends Component {
     var loc = this.mouse.x -(this.state.paddleWidth/2);
 
     if (loc > 0 && loc < (this.w-(this.state.paddleWidth))){
+      var x = (loc > 0 ? loc : 0);
       this.setState({
-        paddleX: (loc > 0 ? loc : 0)
+        paddleX: x,
+        paddleCenter: x + (this.state.paddleWidth/2)
       });
     }
-
-
-
-
-
-
   }
   ballReset(){
     this.setState({

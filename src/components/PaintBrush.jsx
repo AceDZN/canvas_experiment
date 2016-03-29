@@ -14,7 +14,6 @@ class PaintBrush extends Component {
   componentWillMount(){
     this.mouse = {x:0,y:0};
     this.lastMouse={x:0,y:0};
-
   }
   componentDidMount() {
     this.w = this.canvas.clientWidth;
