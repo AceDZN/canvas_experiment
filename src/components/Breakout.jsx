@@ -3,7 +3,7 @@ import React,{Component} from 'react';
 const FPS = 30;
 const BRICK_COLUMNS = 20;
 const BRICK_GAP = 2;
-
+const DEFAULT_SPEED = 5;
 
 class Breakout extends Component {
   constructor(props){
@@ -12,8 +12,8 @@ class Breakout extends Component {
       ballSize:10,
       ballX:150,
       ballY:150,
-      ballSpeedX: 5,
-      ballSpeedY: 5,
+      ballSpeedX: DEFAULT_SPEED,
+      ballSpeedY: DEFAULT_SPEED,
       ballColor: "#7070FF",
       bgColor:"#000",
       paddleColor:"#7070FF",
@@ -252,9 +252,18 @@ class Breakout extends Component {
 
   ballReset(){
     this.setState({
-      ballX: 75,
-      ballY:75
-    })
+      ballSpeedX:0,
+      ballSpeedY:0,
+      ballX: this.w/2,
+      ballY:this.h/2
+    });
+    var rnd = Math.random() < 0.5 ? -1 : 1;
+    setTimeout(function(){
+      this.setState({
+        ballSpeedX:DEFAULT_SPEED*rnd,
+        ballSpeedY:DEFAULT_SPEED,
+      });
+    }.bind(this),3000);
   }
 
   render(){
