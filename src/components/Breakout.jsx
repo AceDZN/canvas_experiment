@@ -28,7 +28,9 @@ class Breakout extends Component {
       brickWidth:50,
       brickHeight: 25,
       brickColor: '#fffb00',
-      bricks: new Array(BRICK_COLUMNS)
+      bricks: new Array(BRICK_COLUMNS),
+      score:0,
+      bricksLeft:0
     }
   }
 
@@ -43,9 +45,8 @@ class Breakout extends Component {
 
 
    this.populateBricks();
+
    setInterval(this.renderScreen.bind(this), 1000/FPS);
-
-
   }
 
   getPaddleBorders(){
@@ -69,7 +70,9 @@ class Breakout extends Component {
       this.state.bricks[i] = true;
     }
     let b = this.state.bricks;
+
     this.setState({
+      bricksLeft:b.length,
       bricks:b,
       brickWidth: (this.w / this.state.brickColumns+0.1)
     });
@@ -161,8 +164,10 @@ class Breakout extends Component {
       if(b[brickColideByBall]){
         let xSpeed = this.state.ballSpeedX;
         let ySpeed = this.state.ballSpeedY;
+        let removeBricks = 0;
 
         b[brickColideByBall]=false;
+        removeBricks++;
 
         let prevBallX = this.state.ballX - this.state.ballSpeedX;
         let prevBallY = this.state.ballY - this.state.ballSpeedY;
@@ -171,26 +176,37 @@ class Breakout extends Component {
         let prevBrickRow = Math.floor(prevBallY / this.state.brickHeight);
 
         let colisionTestsFailed = true;
+        var adjSide = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
+        var adjTop = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
         if(prevBrickColumn != ballNBrickColumn){
-          var adjSide = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
+
           if(b[adjSide]==false){
             xSpeed *= -1;
             colisionTestsFailed = false;
           }
         }
         if(prevBrickRow != ballNBrickRow){
-          var adjTop = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
           if(b[adjTop]==false){
             ySpeed *= -1;
             colisionTestsFailed = false;
           }
         }
         if (colisionTestsFailed){
+          if(b[adjSide] == true){
+            b[adjSide]=false;
+            removeBricks++;
+          }
+          if(b[adjSide] == true){
+            b[adjTop]=false;
+            removeBricks++;
+          }
           ySpeed *= -1;
           xSpeed *= -1;
         }
 
         this.setState({
+          score:(this.state.score+removeBricks),
+          bricksLeft:(this.state.bricksLeft-removeBricks),
           bricks:b,
           ballSpeedY: ySpeed,
           ballSpeedX: xSpeed
@@ -342,6 +358,9 @@ class Breakout extends Component {
                </span>
                <input type="range" min="1" max="20" name="ball_size" className="form-control" id="ball_size" onChange={this.handleBallSize.bind(this)} />
              </div>
+           </div>
+           <div className="form-group pull-right">
+             <h5>{this.state.score}</h5>
            </div>
          </div>
        </div>
