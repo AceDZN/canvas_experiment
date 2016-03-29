@@ -24616,6 +24616,11 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
+	var FPS = 30;
+	var BRICK_COLUMNS = 20;
+	var BRICK_GAP = 2;
+	var BALL_SPEED = 5;
+
 	var Breakout = (function (_Component) {
 	  _inherits(Breakout, _Component);
 
@@ -24624,12 +24629,11 @@
 
 	    _get(Object.getPrototypeOf(Breakout.prototype), "constructor", this).call(this, props);
 	    this.state = {
-	      framePerSec: 30,
 	      ballSize: 10,
-	      ballX: 75,
-	      ballY: 75,
-	      ballSpeedX: 5,
-	      ballSpeedY: 5,
+	      ballX: 150,
+	      ballY: 150,
+	      ballSpeedX: BALL_SPEED,
+	      ballSpeedY: BALL_SPEED,
 	      ballColor: "#7070FF",
 	      bgColor: "#000",
 	      paddleColor: "#7070FF",
@@ -24638,14 +24642,31 @@
 	      paddleX: 400,
 	      paddleCenter: 400 + 150 / 2,
 	      paddleBottomOffset: 50,
-	      paddleBorder: {}
+	      paddleBorder: {},
+	      brickRows: 5,
+	      brickColumns: BRICK_COLUMNS,
+	      brickWidth: 50,
+	      brickHeight: 25,
+	      brickColor: '#fffb00',
+	      bricks: new Array(BRICK_COLUMNS)
 	    };
 	  }
 
 	  _createClass(Breakout, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      this.w = this.canvas.clientWidth;
+	      this.h = this.canvas.clientHeight;
+	      this.ctx = this.canvas.getContext('2d');
+	      this.ctx.canvas.width = this.w;
+	      this.ctx.canvas.height = this.h;
+
+	      this.populateBricks();
+	      setInterval(this.renderScreen.bind(this), 1000 / FPS);
+	    }
+	  }, {
 	    key: "getPaddleBorders",
 	    value: function getPaddleBorders() {
-
 	      var paddleTopY = this.h - this.state.paddleBottomOffset;
 	      var paddleBottomY = paddleTopY + this.state.paddleHeight;
 	      var paddleLeftX = this.state.paddleX;
@@ -24661,22 +24682,38 @@
 	      });
 	    }
 	  }, {
-	    key: "componentWillMount",
-	    value: function componentWillMount() {}
-	  }, {
-	    key: "componentDidMount",
-	    value: function componentDidMount() {
-	      this.w = this.canvas.clientWidth;
-	      this.h = this.canvas.clientHeight;
-	      this.ctx = this.canvas.getContext('2d');
-	      this.ctx.canvas.width = this.w;
-	      this.ctx.canvas.height = this.h;
-
-	      setInterval(this.updateAll.bind(this), 1000 / this.state.framePerSec);
+	    key: "populateBricks",
+	    value: function populateBricks() {
+	      for (var i = 0; i < this.state.brickColumns * this.state.brickRows; i++) {
+	        this.state.bricks[i] = true;
+	      }
+	      var b = this.state.bricks;
+	      this.setState({
+	        bricks: b,
+	        brickWidth: this.w / this.state.brickColumns + 0.1
+	      });
 	    }
 	  }, {
-	    key: "updateAll",
-	    value: function updateAll() {
+	    key: "indexByColNRow",
+	    value: function indexByColNRow(col, row) {
+	      return this.state.brickColumns * row + col;
+	    }
+	  }, {
+	    key: "renderBlocks",
+	    value: function renderBlocks() {
+
+	      for (var row = 0; row < this.state.brickRows; row++) {
+	        for (var column = 0; column < this.state.brickColumns; column++) {
+	          var index = this.indexByColNRow(column, row);
+	          if (this.state.bricks[index]) {
+	            this.drawRect(this.state.brickWidth * column, this.state.brickHeight * row, this.state.brickWidth - BRICK_GAP, this.state.brickHeight - BRICK_GAP, this.state.brickColor);
+	          }
+	        }
+	      }
+	    }
+	  }, {
+	    key: "renderScreen",
+	    value: function renderScreen() {
 	      var x = this.state.ballX;
 	      var y = this.state.ballY;
 
@@ -24686,14 +24723,11 @@
 	        ballX: x + this.state.ballSpeedX,
 	        ballY: y + this.state.ballSpeedY
 	      });
-	      this.moveBall();
+	      this.moveAll();
 	    }
 	  }, {
-	    key: "moveBall",
-	    value: function moveBall() {
-	      var xSpeed = this.state.ballSpeedX;
-	      var ySpeed = this.state.ballSpeedY;
-
+	    key: "ballBorders",
+	    value: function ballBorders(xSpeed, ySpeed) {
 	      if (this.state.ballX < this.state.ballSize) {
 	        xSpeed *= -1;
 	        this.setState({
@@ -24715,8 +24749,12 @@
 	      if (this.state.ballY > this.h - this.state.ballSize) {
 	        this.ballReset();
 	      }
-
+	    }
+	  }, {
+	    key: "paddleColision",
+	    value: function paddleColision(xSpeed, ySpeed) {
 	      if (this.state.ballY > this.state.paddleBorder.TopY - this.state.ballSize && this.state.ballY < this.state.paddleBorder.BottomY && this.state.ballX > this.state.paddleBorder.LeftX - this.state.ballSize && this.state.ballX < this.state.paddleBorder.RightX - this.state.ballSize) {
+
 	        var ballDistFromPaddleCenter = this.state.ballX - this.state.paddleCenter;
 
 	        ySpeed *= -1;
@@ -24726,9 +24764,47 @@
 	          ballSpeedX: xSpeed
 	        });
 	      }
+	    }
+	  }, {
+	    key: "ballNBrick",
+	    value: function ballNBrick() {
+	      var b = this.state.bricks;
+	      var s = this.state.ballSpeedY;
+
+	      var ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
+	      var ballNBrickRow = Math.floor(this.state.ballY / this.state.brickHeight);
+	      var brickColideByBall = this.indexByColNRow(ballNBrickColumn, ballNBrickRow);
+
+	      if (ballNBrickColumn >= 0 && ballNBrickColumn < this.state.brickColumns && ballNBrickRow >= 0 && ballNBrickRow < this.state.brickRows) {
+	        if (b[brickColideByBall]) {
+	          b[brickColideByBall] = false;
+	          this.setState({
+	            bricks: b,
+	            ballSpeedY: s * -1
+	          });
+	        }
+	      }
+	    }
+	  }, {
+	    key: "moveAll",
+	    value: function moveAll() {
+	      this.ballBorders(this.state.ballSpeedX, this.state.ballSpeedY);
+	      this.paddleColision(this.state.ballSpeedX, this.state.ballSpeedY);
+
+	      this.ballNBrick();
+
 	      this.drawRect(0, 0, this.w, this.h, this.state.bgColor);
 	      this.drawBall(this.state.ballX, this.state.ballY, this.state.ballSize, this.state.ballColor);
 	      this.drawRect(this.state.paddleX, this.h - this.state.paddleBottomOffset, this.state.paddleWidth, this.state.paddleHeight, this.state.paddleColor);
+
+	      this.renderBlocks();
+	    }
+	  }, {
+	    key: "handlePaddleColor",
+	    value: function handlePaddleColor(e) {
+	      this.setState({
+	        paddleColor: e.target.value
+	      });
 	    }
 	  }, {
 	    key: "handleBallColor",
@@ -24745,6 +24821,13 @@
 	      });
 	    }
 	  }, {
+	    key: "handleBrickColor",
+	    value: function handleBrickColor(e) {
+	      this.setState({
+	        brickColor: e.target.value
+	      });
+	    }
+	  }, {
 	    key: "handleBallSize",
 	    value: function handleBallSize(e) {
 	      this.setState({
@@ -24758,8 +24841,8 @@
 	      this.ctx.fillRect(TLX, TLY, Width, Height);
 	    }
 	  }, {
-	    key: "showText",
-	    value: function showText(words, textX, textY, color) {
+	    key: "drawText",
+	    value: function drawText(words, textX, textY, color) {
 	      this.ctx.fillStyle = color;
 	      this.ctx.fillText(words, textX, textY);
 	    }
@@ -24785,7 +24868,6 @@
 	    key: "handleMouseMove",
 	    value: function handleMouseMove(e) {
 	      this.mouse = this.getMousePosition(e);
-	      this.showText(this.mouse.x + "," + this.mouse.y, this.mouse.x, this.mouse.y, this.state.ballColor);
 
 	      var loc = this.mouse.x - this.state.paddleWidth / 2;
 
@@ -24800,10 +24882,21 @@
 	  }, {
 	    key: "ballReset",
 	    value: function ballReset() {
+	      var oldSpeedX = this.state.ballSpeedX;
+	      var oldSpeedY = this.state.ballSpeedY;
 	      this.setState({
-	        ballX: 75,
-	        ballY: 75
+	        ballSpeedY: 0,
+	        ballSpeedX: 0,
+	        ballX: this.w / 2,
+	        ballY: this.h / 2
 	      });
+
+	      setTimeout((function () {
+	        this.setState({
+	          ballSpeedY: oldSpeedY,
+	          ballSpeedX: oldSpeedX
+	        });
+	      }).bind(this), 3000);
 	    }
 	  }, {
 	    key: "render",
@@ -24818,7 +24911,7 @@
 	          { className: "action-buttons row" },
 	          _react2["default"].createElement(
 	            "div",
-	            { className: "col-sm-9 text-left form-inline" },
+	            { className: "col-sm-12 text-left form-inline" },
 	            _react2["default"].createElement(
 	              "div",
 	              { className: "form-group" },
@@ -24831,10 +24924,28 @@
 	                  _react2["default"].createElement(
 	                    "label",
 	                    { htmlFor: "ball_color" },
-	                    "Ball Color"
+	                    "Ball:"
 	                  )
 	                ),
-	                _react2["default"].createElement("input", { type: "color", value: this.state.ballColor, name: "color", className: "form-control", id: "ball_color", onChange: this.handleBallColor.bind(this) })
+	                _react2["default"].createElement("input", { type: "color", value: this.state.ballColor, name: "ball_color", className: "form-control", id: "ball_color", onChange: this.handleBallColor.bind(this) })
+	              )
+	            ),
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "form-group" },
+	              _react2["default"].createElement(
+	                "div",
+	                { className: "input-group" },
+	                _react2["default"].createElement(
+	                  "span",
+	                  { className: "input-group-addon btn" },
+	                  _react2["default"].createElement(
+	                    "label",
+	                    { htmlFor: "paddle_color" },
+	                    "Paddle:"
+	                  )
+	                ),
+	                _react2["default"].createElement("input", { type: "color", value: this.state.paddleColor, name: "paddle_color", className: "form-control", id: "paddle_color", onChange: this.handlePaddleColor.bind(this) })
 	              )
 	            ),
 	            _react2["default"].createElement(
@@ -24849,10 +24960,28 @@
 	                  _react2["default"].createElement(
 	                    "label",
 	                    { htmlFor: "bg_color" },
-	                    "Background Color"
+	                    "Background:"
 	                  )
 	                ),
 	                _react2["default"].createElement("input", { type: "color", name: "color", className: "form-control", id: "bg_color", onChange: this.handleBGColor.bind(this) })
+	              )
+	            ),
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "form-group" },
+	              _react2["default"].createElement(
+	                "div",
+	                { className: "input-group" },
+	                _react2["default"].createElement(
+	                  "span",
+	                  { className: "input-group-addon btn" },
+	                  _react2["default"].createElement(
+	                    "label",
+	                    { htmlFor: "brick_color" },
+	                    "Bricks:"
+	                  )
+	                ),
+	                _react2["default"].createElement("input", { type: "color", value: this.state.brickColor, name: "brick_color", className: "form-control", id: "brick_color", onChange: this.handleBrickColor.bind(this) })
 	              )
 	            ),
 	            _react2["default"].createElement(
