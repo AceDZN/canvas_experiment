@@ -10,8 +10,8 @@ class Breakout extends Component {
     super(props);
     this.state = {
       ballSize:10,
-      ballX:75,
-      ballY:75,
+      ballX:150,
+      ballY:150,
       ballSpeedX: 5,
       ballSpeedY: 5,
       ballColor: "#7070FF",
@@ -23,7 +23,7 @@ class Breakout extends Component {
       paddleCenter: 400+(150/2),
       paddleBottomOffset: 50,
       paddleBorder:{},
-      brickRows: 8,
+      brickRows: 5,
       brickColumns: BRICK_COLUMNS,
       brickWidth:50,
       brickHeight: 25,
@@ -69,7 +69,6 @@ class Breakout extends Component {
       this.state.bricks[i] = true;
     }
     let b = this.state.bricks;
-      b[21]=false;
     this.setState({
       bricks:b,
       brickWidth: (this.w / this.state.brickColumns+0.1)
@@ -94,7 +93,6 @@ class Breakout extends Component {
   }
 
   renderScreen(){
-
     var x = this.state.ballX;
     var y = this.state.ballY;
 
@@ -104,15 +102,9 @@ class Breakout extends Component {
       ballX: (x+this.state.ballSpeedX),
       ballY: (y+this.state.ballSpeedY)
     });
-    this.moveBall();
-
+    this.moveAll();
   }
-
-  moveBall(){
-
-    var xSpeed = this.state.ballSpeedX;
-    var ySpeed = this.state.ballSpeedY;
-
+  ballBorders(xSpeed,ySpeed){
     if(this.state.ballX < (this.state.ballSize)){
       xSpeed *= -1;
       this.setState({
@@ -134,7 +126,9 @@ class Breakout extends Component {
     if(this.state.ballY > (this.h-this.state.ballSize)){
       this.ballReset()
     }
+  }
 
+  paddleColision(xSpeed,ySpeed){
     if(this.state.ballY > (this.state.paddleBorder.TopY-this.state.ballSize) &&
       this.state.ballY <  this.state.paddleBorder.BottomY &&
       this.state.ballX >  (this.state.paddleBorder.LeftX-this.state.ballSize) &&
@@ -150,25 +144,34 @@ class Breakout extends Component {
         ballSpeedX: xSpeed
       })
     }
-
+  }
+  ballNBrick(){
+    let b = this.state.bricks;
+    let s = this.state.ballSpeedY;
 
     let ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
     let ballNBrickRow = Math.floor(this.state.ballY / this.state.brickHeight);
-    let b = this.state.bricks;
-    let s = this.state.ballSpeedY;
     let brickColideByBall= this.indexByColNRow(ballNBrickColumn,ballNBrickRow);
 
-    if((ballNBrickColumn >=0) && (ballNBrickColumn < this.state.brickColumns) && (ballNBrickRow>=0) &&(ballNBrickRow < this.state.brickRows)){
+    if((ballNBrickColumn >=0) &&
+      (ballNBrickColumn < this.state.brickColumns) &&
+      (ballNBrickRow>=0) &&
+      (ballNBrickRow < this.state.brickRows)){
       if(b[brickColideByBall]){
         b[brickColideByBall]=false;
         this.setState({
           bricks:b,
           ballSpeedY: s*-1
         });
-
       }
     }
+  }
 
+  moveAll(){
+    this.ballBorders(this.state.ballSpeedX,this.state.ballSpeedY);
+    this.paddleColision(this.state.ballSpeedX,this.state.ballSpeedY);
+
+    this.ballNBrick();
 
     this.drawRect(0,0,this.w,this.h,this.state.bgColor);
     this.drawBall(this.state.ballX, this.state.ballY, this.state.ballSize,this.state.ballColor);
@@ -177,39 +180,41 @@ class Breakout extends Component {
     this.renderBlocks();
   }
 
-
-
-
-
   handlePaddleColor(e){
     this.setState({
       paddleColor: e.target.value
     });
   }
+
   handleBallColor(e){
     this.setState({
       ballColor: e.target.value
     });
   }
+
   handleBGColor(e){
     this.setState({
       bgColor: e.target.value
     });
   }
+
   handleBrickColor(e){
     this.setState({
       brickColor: e.target.value
     });
   }
+
   handleBallSize(e){
     this.setState({
       ballSize: e.target.value
     });
   }
+
   drawRect(TLX,TLY,Width,Height,Fill){
      this.ctx.fillStyle=Fill;
      this.ctx.fillRect(TLX,TLY,Width,Height);
   }
+
   drawText(words, textX, textY, color){
     this.ctx.fillStyle = color;
     this.ctx.fillText(words, textX, textY);
@@ -221,6 +226,7 @@ class Breakout extends Component {
     this.ctx.arc(ballX, ballY, ballSize, 0, Math.PI*2, true);
     this.ctx.fill();
   }
+
   getMousePosition(evt) {
     var rect = this.canvas.getBoundingClientRect();
     var root = document.documentElement;
@@ -229,10 +235,9 @@ class Breakout extends Component {
       y: evt.clientY - rect.top - root.scrollTop
     };
   }
+
   handleMouseMove(e){
     this.mouse = this.getMousePosition(e);
-
-
 
     var loc = this.mouse.x -(this.state.paddleWidth/2);
 
@@ -244,14 +249,16 @@ class Breakout extends Component {
       });
     }
   }
+
   ballReset(){
     this.setState({
       ballX: 75,
       ballY:75
     })
   }
-  render() {
-   return(
+
+  render(){
+    return(
      <div>
        <div className="action-buttons row">
          <div className="col-sm-12 text-left form-inline">
