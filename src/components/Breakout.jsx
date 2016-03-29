@@ -146,8 +146,7 @@ class Breakout extends Component {
     }
   }
   ballNBrick(){
-    let b = this.state.bricks;
-    let s = this.state.ballSpeedY;
+
 
     let ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
     let ballNBrickRow = Math.floor(this.state.ballY / this.state.brickHeight);
@@ -157,11 +156,44 @@ class Breakout extends Component {
       (ballNBrickColumn < this.state.brickColumns) &&
       (ballNBrickRow>=0) &&
       (ballNBrickRow < this.state.brickRows)){
+        let b = this.state.bricks;
+
       if(b[brickColideByBall]){
+        let xSpeed = this.state.ballSpeedX;
+        let ySpeed = this.state.ballSpeedY;
+
         b[brickColideByBall]=false;
+
+        let prevBallX = this.state.ballX - this.state.ballSpeedX;
+        let prevBallY = this.state.ballY - this.state.ballSpeedY;
+
+        let prevBrickColumn = Math.floor(prevBallX / this.state.brickWidth);
+        let prevBrickRow = Math.floor(prevBallY / this.state.brickHeight);
+
+        let colisionTestsFailed = true;
+        if(prevBrickColumn != ballNBrickColumn){
+          var adjSide = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
+          if(b[adjSide]==false){
+            xSpeed *= -1;
+            colisionTestsFailed = false;
+          }
+        }
+        if(prevBrickRow != ballNBrickRow){
+          var adjTop = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
+          if(b[adjTop]==false){
+            ySpeed *= -1;
+            colisionTestsFailed = false;
+          }
+        }
+        if (colisionTestsFailed){
+          ySpeed *= -1;
+          xSpeed *= -1;
+        }
+
         this.setState({
           bricks:b,
-          ballSpeedY: s*-1
+          ballSpeedY: ySpeed,
+          ballSpeedX: xSpeed
         });
       }
     }
