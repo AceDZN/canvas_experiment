@@ -95,15 +95,15 @@ class Breakout extends Component {
       this.ballReset()
     }
 
-    if(this.state.ballY > this.state.paddleBorder.TopY &&
+    if(this.state.ballY > (this.state.paddleBorder.TopY-this.state.ballSize) &&
       this.state.ballY <  this.state.paddleBorder.BottomY &&
-      this.state.ballX >  this.state.paddleBorder.LeftX &&
-      this.state.ballX <  this.state.paddleBorder.RightX
+      this.state.ballX >  (this.state.paddleBorder.LeftX-this.state.ballSize) &&
+      this.state.ballX <  (this.state.paddleBorder.RightX-this.state.ballSize)
     ){
       let ballDistFromPaddleCenter = this.state.ballX - this.state.paddleCenter;
 
       ySpeed *= -1;
-      xSpeed = ballDistFromPaddleCenter * 0.35;
+      xSpeed = ballDistFromPaddleCenter * 0.3;
       this.setState({
         ballSpeedY: ySpeed,
         ballSpeedX: xSpeed
@@ -139,6 +139,10 @@ class Breakout extends Component {
      this.ctx.fillStyle=Fill;
      this.ctx.fillRect(TLX,TLY,Width,Height);
   }
+  showText(words, textX, textY, color){
+    this.ctx.fillStyle = color;
+    this.ctx.fillText(words, textX, textY);
+  }
 
   drawBall(ballX,ballY,ballSize,fill){
     this.ctx.fillStyle=fill;
@@ -156,6 +160,7 @@ class Breakout extends Component {
   }
   handleMouseMove(e){
     this.mouse = this.getMousePosition(e);
+    this.showText(this.mouse.x+","+this.mouse.y,this.mouse.x,this.mouse.y,this.state.ballColor);
 
     var loc = this.mouse.x -(this.state.paddleWidth/2);
 

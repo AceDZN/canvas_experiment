@@ -24636,11 +24636,31 @@
 	      paddleWidth: 150,
 	      paddleHeight: 20,
 	      paddleX: 400,
-	      paddleBottomOffset: 20
+	      paddleCenter: 400 + 150 / 2,
+	      paddleBottomOffset: 50,
+	      paddleBorder: {}
 	    };
 	  }
 
 	  _createClass(Breakout, [{
+	    key: "getPaddleBorders",
+	    value: function getPaddleBorders() {
+
+	      var paddleTopY = this.h - this.state.paddleBottomOffset;
+	      var paddleBottomY = paddleTopY + this.state.paddleHeight;
+	      var paddleLeftX = this.state.paddleX;
+	      var paddleRightX = paddleLeftX + this.state.paddleWidth;
+
+	      this.setState({
+	        paddleBorder: {
+	          TopY: paddleTopY,
+	          BottomY: paddleBottomY,
+	          LeftX: paddleLeftX,
+	          RightX: paddleRightX
+	        }
+	      });
+	    }
+	  }, {
 	    key: "componentWillMount",
 	    value: function componentWillMount() {}
 	  }, {
@@ -24660,6 +24680,8 @@
 	      var x = this.state.ballX;
 	      var y = this.state.ballY;
 
+	      this.getPaddleBorders();
+
 	      this.setState({
 	        ballX: x + this.state.ballSpeedX,
 	        ballY: y + this.state.ballSpeedY
@@ -24671,11 +24693,6 @@
 	    value: function moveBall() {
 	      var xSpeed = this.state.ballSpeedX;
 	      var ySpeed = this.state.ballSpeedY;
-
-	      var paddleTopY = this.h - this.state.paddleBottomOffset;
-	      var paddleBottomY = paddleTopY + this.state.paddleHeight;
-	      var paddleLeftX = this.state.paddleX;
-	      var paddleRightX = paddleLeftX + this.state.paddleWidth;
 
 	      if (this.state.ballX < this.state.ballSize) {
 	        xSpeed *= -1;
@@ -24699,30 +24716,19 @@
 	        this.ballReset();
 	      }
 
-	      if (this.state.ballY > paddleTopY - this.state.ballSize && this.state.ballY < paddleBottomY - this.state.ballSize && this.state.ballX > paddleLeftX - this.state.ballSize && this.state.ballX < paddleRightX - this.state.ballSize) {
+	      if (this.state.ballY > this.state.paddleBorder.TopY - this.state.ballSize && this.state.ballY < this.state.paddleBorder.BottomY && this.state.ballX > this.state.paddleBorder.LeftX - this.state.ballSize && this.state.ballX < this.state.paddleBorder.RightX - this.state.ballSize) {
+	        var ballDistFromPaddleCenter = this.state.ballX - this.state.paddleCenter;
+
 	        ySpeed *= -1;
+	        xSpeed = ballDistFromPaddleCenter * 0.3;
 	        this.setState({
-	          ballSpeedY: ySpeed
+	          ballSpeedY: ySpeed,
+	          ballSpeedX: xSpeed
 	        });
 	      }
-
 	      this.drawRect(0, 0, this.w, this.h, this.state.bgColor);
 	      this.drawBall(this.state.ballX, this.state.ballY, this.state.ballSize, this.state.ballColor);
 	      this.drawRect(this.state.paddleX, this.h - this.state.paddleBottomOffset, this.state.paddleWidth, this.state.paddleHeight, this.state.paddleColor);
-	    }
-	  }, {
-	    key: "drawRect",
-	    value: function drawRect(TLX, TLY, Width, Height, Fill) {
-	      this.ctx.fillStyle = Fill;
-	      this.ctx.fillRect(TLX, TLY, Width, Height);
-	    }
-	  }, {
-	    key: "drawBall",
-	    value: function drawBall(ballX, ballY, ballSize, fill) {
-	      this.ctx.fillStyle = fill;
-	      this.ctx.beginPath();
-	      this.ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2, true);
-	      this.ctx.fill();
 	    }
 	  }, {
 	    key: "handleBallColor",
@@ -24746,6 +24752,26 @@
 	      });
 	    }
 	  }, {
+	    key: "drawRect",
+	    value: function drawRect(TLX, TLY, Width, Height, Fill) {
+	      this.ctx.fillStyle = Fill;
+	      this.ctx.fillRect(TLX, TLY, Width, Height);
+	    }
+	  }, {
+	    key: "showText",
+	    value: function showText(words, textX, textY, color) {
+	      this.ctx.fillStyle = color;
+	      this.ctx.fillText(words, textX, textY);
+	    }
+	  }, {
+	    key: "drawBall",
+	    value: function drawBall(ballX, ballY, ballSize, fill) {
+	      this.ctx.fillStyle = fill;
+	      this.ctx.beginPath();
+	      this.ctx.arc(ballX, ballY, ballSize, 0, Math.PI * 2, true);
+	      this.ctx.fill();
+	    }
+	  }, {
 	    key: "getMousePosition",
 	    value: function getMousePosition(evt) {
 	      var rect = this.canvas.getBoundingClientRect();
@@ -24759,12 +24785,15 @@
 	    key: "handleMouseMove",
 	    value: function handleMouseMove(e) {
 	      this.mouse = this.getMousePosition(e);
+	      this.showText(this.mouse.x + "," + this.mouse.y, this.mouse.x, this.mouse.y, this.state.ballColor);
 
 	      var loc = this.mouse.x - this.state.paddleWidth / 2;
 
 	      if (loc > 0 && loc < this.w - this.state.paddleWidth) {
+	        var x = loc > 0 ? loc : 0;
 	        this.setState({
-	          paddleX: loc > 0 ? loc : 0
+	          paddleX: x,
+	          paddleCenter: x + this.state.paddleWidth / 2
 	        });
 	      }
 	    }
