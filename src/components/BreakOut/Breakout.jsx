@@ -95,11 +95,14 @@ class Breakout extends Component {
 
   populateBricks(){
     var i=0
+
     for(; i<(3*this.state.brickColumns); i++){
-      this.state.bricks[i] = false;
+      this.state.bricks[i] = {};
+      this.state.bricks[i].show = false;
     }
     for(; i<(this.state.brickColumns*this.state.brickRows); i++){
-      this.state.bricks[i] = true;
+      this.state.bricks[i] = {};
+      this.state.bricks[i].show = true;
     }
     let b = this.state.bricks;
 
@@ -118,7 +121,7 @@ class Breakout extends Component {
     for(var row=0; row<this.state.brickRows; row++){
       for(var column=0; column<this.state.brickColumns; column++){
         let index = this.indexByColNRow(column,row);
-        if (this.state.bricks[index]){
+        if (this.state.bricks[index].show){
           this.drawRect(this.state.brickWidth*column,(this.state.brickHeight*row),this.state.brickWidth-BRICK_GAP,this.state.brickHeight-BRICK_GAP,this.state.brickColor);
         }
       }
@@ -205,12 +208,12 @@ class Breakout extends Component {
       (ballNBrickRow < this.state.brickRows)){
         let b = this.state.bricks;
 
-      if(this.isBrickAtPosition(ballNBrickColumn,ballNBrickRow)){
+      if(this.isBrickAtPosition(ballNBrickColumn,ballNBrickRow).show){
         let xSpeed = this.state.ballSpeedX;
         let ySpeed = this.state.ballSpeedY;
         let removeBricks = 0;
 
-        b[brickColideByBall]=false;
+        b[brickColideByBall].show=false;
         removeBricks++;
 
         let prevBallX = this.state.ballX - this.state.ballSpeedX;
@@ -224,24 +227,24 @@ class Breakout extends Component {
         var adjTop = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
         if(prevBrickColumn != ballNBrickColumn){
 
-          if(b[adjSide]==false){
+          if(b[adjSide].show==false){
             xSpeed *= -1;
             colisionTestsFailed = false;
           }
         }
         if(prevBrickRow != ballNBrickRow){
-          if(b[adjTop]==false){
+          if(b[adjTop].show==false){
             ySpeed *= -1;
             colisionTestsFailed = false;
           }
         }
         if (colisionTestsFailed){
-          if(b[adjSide] == true){
-            b[adjSide]=false;
+          if(b[adjSide].show == true){
+            b[adjSide].show=false;
             removeBricks++;
           }
-          if(b[adjSide] == true){
-            b[adjTop]=false;
+          if(b[adjSide].show == true){
+            b[adjTop].show=false;
             removeBricks++;
           }
           ySpeed *= -1;
