@@ -1,36 +1,44 @@
 import React,{Component} from 'react';
 
 const FPS = 30;
+const PADDLE_WIDTH = 200;
+const BRICK_WIDTH = 50;
+const BRICK_HEIGHT = 15;
 const BRICK_COLUMNS = 20;
+const BRICK_ROWS = 13;
 const BRICK_GAP = 2;
 const DEFAULT_SPEED = 5;
 
+
+
 class Breakout extends Component {
+
   constructor(props){
     super(props);
     this.state = {
       ballSize:10,
-      ballX:150,
-      ballY:150,
+      ballX:200,
+      ballY:200,
       ballSpeedX: DEFAULT_SPEED,
       ballSpeedY: DEFAULT_SPEED,
       ballColor: "#7070FF",
       bgColor:"#000",
       paddleColor:"#7070FF",
-      paddleWidth: 150,
+      paddleWidth: PADDLE_WIDTH,
       paddleHeight: 20,
       paddleX: 400,
       paddleCenter: 400+(150/2),
       paddleBottomOffset: 50,
       paddleBorder:{},
-      brickRows: 5,
+      brickRows: BRICK_ROWS,
       brickColumns: BRICK_COLUMNS,
-      brickWidth:50,
-      brickHeight: 25,
+      brickWidth:BRICK_WIDTH,
+      brickHeight: BRICK_HEIGHT,
       brickColor: '#fffb00',
       bricks: new Array(BRICK_COLUMNS),
       score:0,
-      bricksLeft:0
+      bricksLeft:0,
+      paused:false
     }
   }
 
@@ -43,13 +51,43 @@ class Breakout extends Component {
    this.ctx.canvas.width  = this.w;
    this.ctx.canvas.height = this.h;
 
-
    this.populateBricks();
 
    setInterval(this.renderScreen.bind(this), 1000/FPS);
   }
 
+  gameReset(){
+    this.setState({
+      ballSize:10,
+      ballX:150,
+      ballY:150,
+      ballSpeedX: DEFAULT_SPEED,
+      ballSpeedY: DEFAULT_SPEED,
+      paddleCenter: 400+(150/2),
+      paddleHeight: 20,
+      paddleWidth: PADDLE_WIDTH,
+      paddleX: (this.w/2)-(PADDLE_WIDTH/2),
+      paddleBottomOffset: 50,
+      brickRows: BRICK_ROWS,
+      brickColumns: BRICK_COLUMNS,
+      brickWidth:BRICK_WIDTH,
+      brickHeight: BRICK_HEIGHT,
+      bricks: new Array(BRICK_COLUMNS),
+      score:0,
+      bricksLeft:0,
+      paused:true
+    });
+
+   this.populateBricks();
+   this.ballReset();
+   setInterval(this.renderScreen.bind(this), 1000/FPS);
+   this.ballReset();
+  }
+
+
+
   getPaddleBorders(){
+
     var paddleTopY = this.h - this.state.paddleBottomOffset;
     var paddleBottomY = paddleTopY + this.state.paddleHeight;
     var paddleLeftX = this.state.paddleX;
@@ -66,12 +104,17 @@ class Breakout extends Component {
   }
 
   populateBricks(){
-    for(var i=0; i<(this.state.brickColumns*this.state.brickRows); i++){
+    var i=0
+    for(; i<(3*this.state.brickColumns); i++){
+      this.state.bricks[i] = false;
+    }
+    for(; i<(this.state.brickColumns*this.state.brickRows); i++){
       this.state.bricks[i] = true;
     }
     let b = this.state.bricks;
 
     this.setState({
+      paddleX: (this.w/2)-(PADDLE_WIDTH/2),
       bricksLeft:b.length,
       bricks:b,
       brickWidth: (this.w / this.state.brickColumns+0.1)
@@ -100,7 +143,6 @@ class Breakout extends Component {
     var y = this.state.ballY;
 
     this.getPaddleBorders();
-
     this.setState({
       ballX: (x+this.state.ballSpeedX),
       ballY: (y+this.state.ballSpeedY)
@@ -148,9 +190,8 @@ class Breakout extends Component {
       })
     }
   }
+
   ballNBrick(){
-
-
     let ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
     let ballNBrickRow = Math.floor(this.state.ballY / this.state.brickHeight);
     let brickColideByBall= this.indexByColNRow(ballNBrickColumn,ballNBrickRow);
@@ -210,7 +251,12 @@ class Breakout extends Component {
           bricks:b,
           ballSpeedY: ySpeed,
           ballSpeedX: xSpeed
-        });
+        }, function(){
+          if(this.state.bricksLeft<=0){
+            this.gameReset();
+          }
+        }.bind(this));
+
       }
     }
   }
@@ -299,19 +345,26 @@ class Breakout extends Component {
   }
 
   ballReset(){
+
     this.setState({
+      paused:true,
       ballSpeedX:0,
       ballSpeedY:0,
       ballX: this.w/2,
       ballY:this.h/2
     });
     var rnd = Math.random() < 0.5 ? -1 : 1;
-    setTimeout(function(){
-      this.setState({
-        ballSpeedX:DEFAULT_SPEED*rnd,
-        ballSpeedY:DEFAULT_SPEED,
-      });
-    }.bind(this),3000);
+
+    this.canvas.addEventListener("click", function(){
+      if(this.state.paused){
+        this.setState({
+          paused:false,
+          ballSpeedX:DEFAULT_SPEED*rnd,
+          ballSpeedY:DEFAULT_SPEED,
+        });
+      }
+    }.bind(this));
+
   }
 
   render(){
