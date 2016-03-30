@@ -24511,7 +24511,7 @@
 	        { className: 'page' },
 	        _react2['default'].createElement(
 	          'div',
-	          { className: 'action-buttons row ' },
+	          { className: 'action-buttons row' },
 	          _react2['default'].createElement(
 	            'div',
 	            { className: 'col-sm-9 text-left form-inline' },
@@ -24596,25 +24596,31 @@
 /* 210 */
 /***/ function(module, exports, __webpack_require__) {
 
-	"use strict";
+	'use strict';
 
-	Object.defineProperty(exports, "__esModule", {
+	Object.defineProperty(exports, '__esModule', {
 	  value: true
 	});
 
-	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
 
-	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
-	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
 
-	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'default': obj }; }
 
-	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== 'function' && superClass !== null) { throw new TypeError('Super expression must either be null or a function, not ' + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
 
 	var _react = __webpack_require__(2);
 
 	var _react2 = _interopRequireDefault(_react);
+
+	var _CheatActionsJsx = __webpack_require__(211);
+
+	var _CheatActionsJsx2 = _interopRequireDefault(_CheatActionsJsx);
 
 	var FPS = 30;
 	var PADDLE_WIDTH = 200;
@@ -24631,8 +24637,9 @@
 	  function Breakout(props) {
 	    _classCallCheck(this, Breakout);
 
-	    _get(Object.getPrototypeOf(Breakout.prototype), "constructor", this).call(this, props);
+	    _get(Object.getPrototypeOf(Breakout.prototype), 'constructor', this).call(this, props);
 	    this.state = {
+	      gameOver: false,
 	      ballSize: 10,
 	      ballX: 200,
 	      ballY: 200,
@@ -24661,7 +24668,7 @@
 	  }
 
 	  _createClass(Breakout, [{
-	    key: "componentDidMount",
+	    key: 'componentDidMount',
 	    value: function componentDidMount() {
 	      this.w = this.canvas.clientWidth;
 	      this.h = this.canvas.clientHeight;
@@ -24674,7 +24681,7 @@
 	      this.renderScreen();
 	    }
 	  }, {
-	    key: "gameReset",
+	    key: 'gameReset',
 	    value: function gameReset() {
 	      this.canvas && this.setState({
 	        ballX: 150,
@@ -24687,9 +24694,10 @@
 	      });
 	      this.populateBricks();
 	      this.ballReset();
+	      this.renderScreen();
 	    }
 	  }, {
-	    key: "getPaddleBorders",
+	    key: 'getPaddleBorders',
 	    value: function getPaddleBorders() {
 
 	      var paddleTopY = this.h - this.state.paddleBottomOffset;
@@ -24707,7 +24715,7 @@
 	      });
 	    }
 	  }, {
-	    key: "populateBricks",
+	    key: 'populateBricks',
 	    value: function populateBricks() {
 	      var i = 0;
 	      for (; i < 3 * this.state.brickColumns; i++) {
@@ -24726,12 +24734,12 @@
 	      });
 	    }
 	  }, {
-	    key: "indexByColNRow",
+	    key: 'indexByColNRow',
 	    value: function indexByColNRow(col, row) {
 	      return this.state.brickColumns * row + col;
 	    }
 	  }, {
-	    key: "renderBlocks",
+	    key: 'renderBlocks',
 	    value: function renderBlocks() {
 	      for (var row = 0; row < this.state.brickRows; row++) {
 	        for (var column = 0; column < this.state.brickColumns; column++) {
@@ -24743,7 +24751,7 @@
 	      }
 	    }
 	  }, {
-	    key: "renderScreen",
+	    key: 'renderScreen',
 	    value: function renderScreen() {
 	      var x = this.state.ballX;
 	      var y = this.state.ballY;
@@ -24754,24 +24762,30 @@
 	        ballY: y + this.state.ballSpeedY
 	      });
 	      this.moveAll();
-	      requestAnimationFrame(this.renderScreen.bind(this));
+
+	      if (this.state.lives > 0) {
+	        requestAnimationFrame(this.renderScreen.bind(this));
+	      } else {
+	        cancelAnimationFrame(this.renderScreen.bind(this));
+	        this.gameOver();
+	      }
 	    }
 	  }, {
-	    key: "ballBorders",
+	    key: 'ballBorders',
 	    value: function ballBorders(xSpeed, ySpeed) {
-	      if (this.state.ballX < this.state.ballSize) {
+	      if (this.state.ballX < this.state.ballSize && this.state.ballSpeedX < 0.0) {
 	        xSpeed *= -1;
 	        this.canvas && this.setState({
 	          ballSpeedX: xSpeed
 	        });
 	      }
-	      if (this.state.ballX > this.w - this.state.ballSize) {
+	      if (this.state.ballX > this.w - this.state.ballSize && this.state.ballSpeedX > 0.0) {
 	        xSpeed *= -1;
 	        this.canvas && this.setState({
 	          ballSpeedX: xSpeed
 	        });
 	      }
-	      if (this.state.ballY < this.state.ballSize) {
+	      if (this.state.ballY < this.state.ballSize && this.state.ballSpeedY < 0.0) {
 	        ySpeed *= -1;
 	        this.canvas && this.setState({
 	          ballSpeedY: ySpeed
@@ -24782,7 +24796,7 @@
 	      }
 	    }
 	  }, {
-	    key: "paddleColision",
+	    key: 'paddleColision',
 	    value: function paddleColision(xSpeed, ySpeed) {
 	      if (this.state.ballY > this.state.paddleBorder.TopY - this.state.ballSize && this.state.ballY < this.state.paddleBorder.BottomY && this.state.ballX > this.state.paddleBorder.LeftX - this.state.ballSize && this.state.ballX < this.state.paddleBorder.RightX - this.state.ballSize) {
 
@@ -24797,7 +24811,7 @@
 	      }
 	    }
 	  }, {
-	    key: "isBrickAtPosition",
+	    key: 'isBrickAtPosition',
 	    value: function isBrickAtPosition(col, row) {
 	      if (col >= 0 && col < this.state.brickColumns && row >= 0 && row < this.state.brickRows) {
 	        var brickColideByCoordinate = this.indexByColNRow(col, row);
@@ -24807,7 +24821,7 @@
 	      }
 	    }
 	  }, {
-	    key: "ballNBrick",
+	    key: 'ballNBrick',
 	    value: function ballNBrick() {
 	      var ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
 	      var ballNBrickRow = Math.floor(this.state.ballY / this.state.brickHeight);
@@ -24874,7 +24888,7 @@
 	      }
 	    }
 	  }, {
-	    key: "moveAll",
+	    key: 'moveAll',
 	    value: function moveAll() {
 	      this.ballBorders(this.state.ballSpeedX, this.state.ballSpeedY);
 	      this.paddleColision(this.state.ballSpeedX, this.state.ballSpeedY);
@@ -24887,68 +24901,70 @@
 	      this.renderBlocks();
 	    }
 	  }, {
-	    key: "handleLivesNum",
-	    value: function handleLivesNum(e) {
-	      this.canvas && this.setState({
-	        lives: e.target.value
-	      });
-	    }
-	  }, {
-	    key: "setLivesNum",
+	    key: 'setLivesNum',
 	    value: function setLivesNum(n) {
+
+	      console.log("handling");
 	      this.canvas && this.setState({
 	        lives: n
 	      });
 	    }
 	  }, {
-	    key: "handlePaddleColor",
+	    key: 'handleLivesNum',
+	    value: function handleLivesNum(e) {
+	      this.setLivesNum(e.target.value);
+	    }
+	  }, {
+	    key: 'handlePaddleColor',
 	    value: function handlePaddleColor(e) {
 	      this.canvas && this.setState({
 	        paddleColor: e.target.value
 	      });
 	    }
 	  }, {
-	    key: "handleBallColor",
+	    key: 'handleBallColor',
 	    value: function handleBallColor(e) {
 	      this.canvas && this.setState({
 	        ballColor: e.target.value
 	      });
 	    }
 	  }, {
-	    key: "handleBGColor",
+	    key: 'handleBGColor',
 	    value: function handleBGColor(e) {
 	      this.canvas && this.setState({
 	        bgColor: e.target.value
 	      });
 	    }
 	  }, {
-	    key: "handleBrickColor",
+	    key: 'handleBrickColor',
 	    value: function handleBrickColor(e) {
 	      this.canvas && this.setState({
 	        brickColor: e.target.value
 	      });
 	    }
 	  }, {
-	    key: "handleBallSize",
+	    key: 'handleBallSize',
 	    value: function handleBallSize(e) {
 	      this.canvas && this.setState({
 	        ballSize: e.target.value
 	      });
 	    }
 	  }, {
-	    key: "drawRect",
+	    key: 'drawRect',
 	    value: function drawRect(TLX, TLY, Width, Height, Fill) {
 	      this.ctx.fillStyle = Fill;
 	      this.ctx.fillRect(TLX, TLY, Width, Height);
 	    }
 	  }, {
-	    key: "drawText",
-	    value: function drawText(words, textX, textY, color) {
+	    key: 'drawText',
+	    value: function drawText(words, textX, textY, color, size) {
+	      this.ctx.textAlign = "center";
+	      this.ctx.font = size + "px Arial";
 	      this.ctx.fillStyle = color;
 	      this.ctx.fillText(words, textX, textY);
 	    }
 	  }, {
-	    key: "drawBall",
+	    key: 'drawBall',
 	    value: function drawBall(ballX, ballY, ballSize, fill) {
 	      this.ctx.fillStyle = fill;
 	      this.ctx.beginPath();
@@ -24956,7 +24972,7 @@
 	      this.ctx.fill();
 	    }
 	  }, {
-	    key: "getMousePosition",
+	    key: 'getMousePosition',
 	    value: function getMousePosition(evt) {
 	      var rect = this.canvas.getBoundingClientRect();
 	      var root = document.documentElement;
@@ -24966,7 +24982,7 @@
 	      };
 	    }
 	  }, {
-	    key: "handleMouseMove",
+	    key: 'handleMouseMove',
 	    value: function handleMouseMove(e) {
 	      this.mouse = this.getMousePosition(e);
 
@@ -24981,7 +24997,7 @@
 	      }
 	    }
 	  }, {
-	    key: "ballReset",
+	    key: 'ballReset',
 	    value: function ballReset() {
 	      this.canvas && this.setState({
 	        paused: true,
@@ -25003,149 +25019,44 @@
 	      }).bind(this));
 	    }
 	  }, {
-	    key: "startOver",
+	    key: 'startOver',
 	    value: function startOver() {
 	      var lives = this.state.lives - 1;
-	      this.setLivesNum(lives);
 	      if (lives > 0) {
+	        this.setLivesNum(lives);
 	        this.ballReset();
 	      } else {
-	        this.gameOver();
+	        this.setLivesNum(0);
 	      }
 	    }
 	  }, {
-	    key: "gameOver",
+	    key: 'gameOver',
 	    value: function gameOver() {
-	      this.setLivesNum(0);
+	      this.drawRect(0, 0, this.w, this.h, "#c0c0c0");
+	      this.drawText("GAME OVER", this.w / 2, this.h / 2 - 30, "#000000", 40);
+	      this.drawText("Your Score is :" + this.state.score, this.w / 2, this.h / 2 + 20, "#000000", 40);
+	      this.drawText("[click to start again]", this.w / 2, this.h / 2 + 50, "#000000", 20);
+
 	      this.canvas.addEventListener("click", (function () {
-	        this.canvas.removeEventListener('click', false, false);
 	        this.gameReset();
 	      }).bind(this));
 	    }
 	  }, {
-	    key: "render",
+	    key: 'render',
 	    value: function render() {
 	      var _this = this;
 
-	      return _react2["default"].createElement(
-	        "div",
+	      return _react2['default'].createElement(
+	        'div',
 	        null,
-	        _react2["default"].createElement(
-	          "div",
-	          { className: "action-buttons row " },
-	          _react2["default"].createElement(
-	            "div",
-	            { className: "col-sm-12 text-left form-inline" },
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group hidden-sm" },
-	              _react2["default"].createElement(
-	                "div",
-	                { className: "input-group" },
-	                _react2["default"].createElement(
-	                  "span",
-	                  { className: "input-group-addon btn" },
-	                  _react2["default"].createElement(
-	                    "label",
-	                    { htmlFor: "ball_color" },
-	                    "Ball:"
-	                  )
-	                ),
-	                _react2["default"].createElement("input", { type: "color", value: this.state.ballColor, name: "ball_color", className: "form-control", id: "ball_color", onChange: this.handleBallColor.bind(this) })
-	              )
-	            ),
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group hidden-sm" },
-	              _react2["default"].createElement(
-	                "div",
-	                { className: "input-group" },
-	                _react2["default"].createElement(
-	                  "span",
-	                  { className: "input-group-addon btn" },
-	                  _react2["default"].createElement(
-	                    "label",
-	                    { htmlFor: "paddle_color" },
-	                    "Paddle:"
-	                  )
-	                ),
-	                _react2["default"].createElement("input", { type: "color", value: this.state.paddleColor, name: "paddle_color", className: "form-control", id: "paddle_color", onChange: this.handlePaddleColor.bind(this) })
-	              )
-	            ),
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group hidden-sm" },
-	              _react2["default"].createElement(
-	                "div",
-	                { className: "input-group" },
-	                _react2["default"].createElement(
-	                  "span",
-	                  { className: "input-group-addon btn" },
-	                  _react2["default"].createElement(
-	                    "label",
-	                    { htmlFor: "bg_color" },
-	                    "Background:"
-	                  )
-	                ),
-	                _react2["default"].createElement("input", { type: "color", name: "color", className: "form-control", id: "bg_color", onChange: this.handleBGColor.bind(this) })
-	              )
-	            ),
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group hidden-sm" },
-	              _react2["default"].createElement(
-	                "div",
-	                { className: "input-group" },
-	                _react2["default"].createElement(
-	                  "span",
-	                  { className: "input-group-addon btn" },
-	                  _react2["default"].createElement(
-	                    "label",
-	                    { htmlFor: "brick_color" },
-	                    "Bricks:"
-	                  )
-	                ),
-	                _react2["default"].createElement("input", { type: "color", value: this.state.brickColor, name: "brick_color", className: "form-control", id: "brick_color", onChange: this.handleBrickColor.bind(this) })
-	              )
-	            ),
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group hidden-sm" },
-	              _react2["default"].createElement(
-	                "div",
-	                { className: "input-group" },
-	                _react2["default"].createElement(
-	                  "span",
-	                  { className: "input-group-addon" },
-	                  "Ball Size:"
-	                ),
-	                _react2["default"].createElement("input", { type: "range", min: "1", max: "20", name: "ball_size", className: "form-control", id: "ball_size", onChange: this.handleBallSize.bind(this) })
-	              )
-	            ),
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group pull-right icon_wrap star" },
-	              _react2["default"].createElement("img", { src: "./assets/img/star.svg", className: "pull-right" }),
-	              _react2["default"].createElement(
-	                "h5",
-	                { className: "pull-left" },
-	                this.state.score
-	              )
-	            ),
-	            _react2["default"].createElement(
-	              "div",
-	              { className: "form-group pull-right icon_wrap ball" },
-	              _react2["default"].createElement("img", { src: "./assets/img/ball.svg", className: "pull-right" }),
-	              _react2["default"].createElement(
-	                "h5",
-	                { className: "pull-left" },
-	                this.state.lives
-	              )
-	            ),
-	            _react2["default"].createElement("input", { type: "text", value: this.state.lives, onChange: this.handleLivesNum.bind(this) })
-	          )
-	        ),
-	        _react2["default"].createElement("canvas", {
+	        _react2['default'].createElement(_CheatActionsJsx2['default'], _extends({}, this.state, {
+	          changeLives: this.handleLivesNum.bind(this),
+	          changeBallSize: this.handleBallSize.bind(this),
+	          changeBallColor: this.handleBallColor.bind(this),
+	          changePaddleColor: this.handlePaddleColor.bind(this),
+	          changeBGColor: this.handleBGColor.bind(this),
+	          changeBricksColor: this.handleBrickColor.bind(this) })),
+	        _react2['default'].createElement('canvas', {
 	          ref: function (c) {
 	            return _this.canvas = c;
 	          },
@@ -25158,7 +25069,171 @@
 	  return Breakout;
 	})(_react.Component);
 
-	exports["default"] = Breakout;
+	exports['default'] = Breakout;
+	module.exports = exports['default'];
+
+/***/ },
+/* 211 */
+/***/ function(module, exports, __webpack_require__) {
+
+	"use strict";
+
+	Object.defineProperty(exports, "__esModule", {
+	  value: true
+	});
+
+	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
+
+	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ("value" in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
+
+	function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { "default": obj }; }
+
+	function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
+	function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function, not " + typeof superClass); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, enumerable: false, writable: true, configurable: true } }); if (superClass) Object.setPrototypeOf ? Object.setPrototypeOf(subClass, superClass) : subClass.__proto__ = superClass; }
+
+	var _react = __webpack_require__(2);
+
+	var _react2 = _interopRequireDefault(_react);
+
+	var CheatActions = (function (_Component) {
+	  _inherits(CheatActions, _Component);
+
+	  function CheatActions(props) {
+	    _classCallCheck(this, CheatActions);
+
+	    _get(Object.getPrototypeOf(CheatActions.prototype), "constructor", this).call(this, props);
+	    this.state = {};
+	  }
+
+	  _createClass(CheatActions, [{
+	    key: "componentDidMount",
+	    value: function componentDidMount() {}
+	  }, {
+	    key: "render",
+	    value: function render() {
+	      return _react2["default"].createElement(
+	        "div",
+	        { className: "action-buttons row" },
+	        _react2["default"].createElement(
+	          "div",
+	          { className: "col-sm-12 text-left form-inline" },
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group hidden-sm" },
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "input-group" },
+	              _react2["default"].createElement(
+	                "span",
+	                { className: "input-group-addon btn" },
+	                _react2["default"].createElement(
+	                  "label",
+	                  { htmlFor: "ball_color" },
+	                  "Ball:"
+	                )
+	              ),
+	              _react2["default"].createElement("input", { type: "color", value: this.props.ballColor, name: "ball_color", className: "form-control", id: "ball_color", onChange: this.props.changeBallColor })
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group hidden-sm" },
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "input-group" },
+	              _react2["default"].createElement(
+	                "span",
+	                { className: "input-group-addon btn" },
+	                _react2["default"].createElement(
+	                  "label",
+	                  { htmlFor: "paddle_color" },
+	                  "Paddle:"
+	                )
+	              ),
+	              _react2["default"].createElement("input", { type: "color", value: this.props.paddleColor, name: "paddle_color", className: "form-control", id: "paddle_color", onChange: this.props.changePaddleColor })
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group hidden-sm" },
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "input-group" },
+	              _react2["default"].createElement(
+	                "span",
+	                { className: "input-group-addon btn" },
+	                _react2["default"].createElement(
+	                  "label",
+	                  { htmlFor: "bg_color" },
+	                  "Background:"
+	                )
+	              ),
+	              _react2["default"].createElement("input", { type: "color", name: "color", value: this.state.bgColor, className: "form-control", id: "bg_color", onChange: this.props.changeBGColor })
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group hidden-sm" },
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "input-group" },
+	              _react2["default"].createElement(
+	                "span",
+	                { className: "input-group-addon btn" },
+	                _react2["default"].createElement(
+	                  "label",
+	                  { htmlFor: "brick_color" },
+	                  "Bricks:"
+	                )
+	              ),
+	              _react2["default"].createElement("input", { type: "color", value: this.props.brickColor, name: "brick_color", className: "form-control", id: "brick_color", onChange: this.props.changeBricksColor })
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group hidden-sm" },
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "input-group" },
+	              _react2["default"].createElement(
+	                "span",
+	                { className: "input-group-addon" },
+	                "Ball Size:"
+	              ),
+	              _react2["default"].createElement("input", { type: "range", min: "1", max: "20", name: "ball_size", className: "form-control", id: "ball_size", onChange: this.props.changeBallSize })
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group pull-right icon_wrap star" },
+	            _react2["default"].createElement("img", { src: "./assets/img/star.svg", className: "pull-right" }),
+	            _react2["default"].createElement(
+	              "h5",
+	              { className: "pull-left" },
+	              this.props.score
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group pull-right icon_wrap ball" },
+	            _react2["default"].createElement("img", { src: "./assets/img/ball.svg", className: "pull-right" }),
+	            _react2["default"].createElement(
+	              "h5",
+	              { className: "pull-left" },
+	              this.props.lives
+	            )
+	          ),
+	          _react2["default"].createElement("input", { type: "text", value: this.props.lives, onChange: this.props.changeLives })
+	        )
+	      );
+	    }
+	  }]);
+
+	  return CheatActions;
+	})(_react.Component);
+
+	exports["default"] = CheatActions;
 	module.exports = exports["default"];
 
 /***/ }

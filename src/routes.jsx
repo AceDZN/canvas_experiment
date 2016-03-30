@@ -7,7 +7,7 @@ import IndexRedirect from 'react-router/lib/IndexRedirect'
 var App = require('./components/App.jsx');
 var BouncingBall = require('./components/BouncingBall.jsx');
 var PaintBrush = require('./components/PaintBrush.jsx');
-var Breakout = require('./components/Breakout.jsx');
+var Breakout = require('./components/BreakOut/Breakout.jsx');
 
 module.exports = (
   <Router history={hashHistory}>

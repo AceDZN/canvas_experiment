@@ -1,4 +1,5 @@
 import React,{Component} from 'react';
+import CheatActions from './CheatActions.jsx';
 
 const FPS = 30;
 const PADDLE_WIDTH = 200;
@@ -16,6 +17,7 @@ class Breakout extends Component {
   constructor(props){
     super(props);
     this.state = {
+      gameOver:false,
       ballSize:10,
       ballX:200,
       ballY:200,
@@ -70,6 +72,7 @@ class Breakout extends Component {
     });
     this.populateBricks();
     this.ballReset();
+    this.renderScreen();
   }
 
 
@@ -120,8 +123,6 @@ class Breakout extends Component {
         }
       }
     }
-
-
   }
 
   renderScreen(){
@@ -134,7 +135,13 @@ class Breakout extends Component {
         ballY: (y+this.state.ballSpeedY)
       });
       this.moveAll();
-      requestAnimationFrame(this.renderScreen.bind(this));
+
+      if(this.state.lives > 0){
+        requestAnimationFrame(this.renderScreen.bind(this));
+      } else {
+        cancelAnimationFrame(this.renderScreen.bind(this));
+        this.gameOver();
+      }
   }
   ballBorders(xSpeed,ySpeed){
     if(this.state.ballX < (this.state.ballSize) && this.state.ballSpeedX < 0.0){
@@ -269,6 +276,8 @@ class Breakout extends Component {
   }
 
   setLivesNum(n){
+
+    console.log("handling");
     this.canvas && this.setState({
       lives: n
     });
@@ -311,7 +320,9 @@ class Breakout extends Component {
      this.ctx.fillRect(TLX,TLY,Width,Height);
   }
 
-  drawText(words, textX, textY, color){
+  drawText(words, textX, textY, color,size){
+    this.ctx.textAlign="center";
+    this.ctx.font=size+"px Arial";
     this.ctx.fillStyle = color;
     this.ctx.fillText(words, textX, textY);
   }
@@ -374,71 +385,30 @@ class Breakout extends Component {
       this.ballReset()
     } else {
       this.setLivesNum(0);
-      this.gameOver();
     }
   }
   gameOver(){
-    this.gameReset();
+    this.drawRect(0,0,this.w,this.h,"#c0c0c0");
+    this.drawText("GAME OVER", (this.w/2),(this.h/2)-30,"#000000",40);
+    this.drawText("Your Score is :"+this.state.score, (this.w/2),(this.h/2+20),"#000000",40);
+    this.drawText("[click to start again]", (this.w/2),(this.h/2+50),"#000000",20);
+
+    this.canvas.addEventListener("click", function(){
+      this.gameReset()
+    }.bind(this));
+
   }
   render(){
     return(
      <div>
-       <div className="action-buttons row ">
-         <div className="col-sm-12 text-left form-inline">
-           <div className="form-group hidden-sm">
-             <div className="input-group">
-               <span className="input-group-addon btn">
-                 <label htmlFor="ball_color">Ball:</label>
-               </span>
-               <input type="color" value={this.state.ballColor} name="ball_color" className="form-control" id="ball_color" onChange={this.handleBallColor.bind(this)} />
-             </div>
-           </div>
-           <div className="form-group hidden-sm">
-             <div className="input-group">
-               <span className="input-group-addon btn">
-                 <label htmlFor="paddle_color">Paddle:</label>
-               </span>
-               <input type="color" value={this.state.paddleColor} name="paddle_color" className="form-control" id="paddle_color" onChange={this.handlePaddleColor.bind(this)} />
-             </div>
-           </div>
-           <div className="form-group hidden-sm">
-             <div className="input-group">
-               <span className="input-group-addon btn">
-                 <label htmlFor="bg_color">Background:</label>
-               </span>
-               <input type="color" name="color" className="form-control" id="bg_color" onChange={this.handleBGColor.bind(this)} />
-             </div>
-           </div>
-           <div className="form-group hidden-sm">
-             <div className="input-group">
-               <span className="input-group-addon btn">
-                 <label htmlFor="brick_color">Bricks:</label>
-               </span>
-               <input type="color" value={this.state.brickColor} name="brick_color" className="form-control" id="brick_color" onChange={this.handleBrickColor.bind(this)} />
-             </div>
-           </div>
-           <div className="form-group hidden-sm">
-             <div className="input-group">
-               <span className="input-group-addon">
-                 Ball Size:
-               </span>
-               <input type="range" min="1" max="20" name="ball_size" className="form-control" id="ball_size" onChange={this.handleBallSize.bind(this)} />
-             </div>
-           </div>
-
-           <div className="form-group pull-right icon_wrap star">
-             <img src="./assets/img/star.svg" className="pull-right"/>
-             <h5 className="pull-left">{this.state.score}</h5>
-           </div>
-
-           <div className="form-group pull-right icon_wrap ball">
-             <img src="./assets/img/ball.svg" className="pull-right"/>
-             <h5 className="pull-left">{this.state.lives}</h5>
-           </div>
-           <input type="text" value={this.state.lives} onChange={this.handleLivesNum.bind(this)}/>
-         </div>
-       </div>
-
+       <CheatActions
+        {...this.state}
+        changeLives={this.handleLivesNum.bind(this)}
+        changeBallSize={this.handleBallSize.bind(this)}
+        changeBallColor={this.handleBallColor.bind(this)}
+        changePaddleColor={this.handlePaddleColor.bind(this)}
+        changeBGColor={this.handleBGColor.bind(this)}
+        changeBricksColor={this.handleBrickColor.bind(this)}/>
        <canvas
          ref={(c) => this.canvas = c}
          onMouseMove={this.handleMouseMove.bind(this)}
