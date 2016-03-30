@@ -57,7 +57,7 @@ class Breakout extends Component {
   }
 
   gameReset(){
-    this.setState({
+    this.canvas && this.setState({
       ballSize:10,
       ballX:150,
       ballY:150,
@@ -93,7 +93,7 @@ class Breakout extends Component {
     var paddleLeftX = this.state.paddleX;
     var paddleRightX = paddleLeftX + this.state.paddleWidth;
 
-    this.setState({
+    this.canvas && this.setState({
       paddleBorder:{
         TopY: paddleTopY,
         BottomY: paddleBottomY,
@@ -113,7 +113,7 @@ class Breakout extends Component {
     }
     let b = this.state.bricks;
 
-    this.setState({
+    this.canvas && this.setState({
       paddleX: (this.w/2)-(PADDLE_WIDTH/2),
       bricksLeft:b.length,
       bricks:b,
@@ -143,7 +143,7 @@ class Breakout extends Component {
     var y = this.state.ballY;
 
     this.getPaddleBorders();
-    this.setState({
+    this.canvas && this.setState({
       ballX: (x+this.state.ballSpeedX),
       ballY: (y+this.state.ballSpeedY)
     });
@@ -152,19 +152,19 @@ class Breakout extends Component {
   ballBorders(xSpeed,ySpeed){
     if(this.state.ballX < (this.state.ballSize)){
       xSpeed *= -1;
-      this.setState({
+      this.canvas && this.setState({
         ballSpeedX: xSpeed
       })
     }
     if(this.state.ballX > (this.w-this.state.ballSize)){
       xSpeed *= -1;
-      this.setState({
+      this.canvas && this.setState({
         ballSpeedX: xSpeed
       })
     }
     if(this.state.ballY < (this.state.ballSize)){
       ySpeed *= -1;
-      this.setState({
+      this.canvas && this.setState({
         ballSpeedY: ySpeed
       })
     }
@@ -184,10 +184,19 @@ class Breakout extends Component {
 
       ySpeed *= -1;
       xSpeed = ballDistFromPaddleCenter * 0.3;
-      this.setState({
+      this.canvas && this.setState({
         ballSpeedY: ySpeed,
         ballSpeedX: xSpeed
       })
+    }
+  }
+  isBrickAtPosition(col,row){
+    if(col >=0 && col < this.state.brickColumns &&
+      row >=0 && row < this.state.brickRows){
+        let brickColideByCoordinate= this.indexByColNRow(col,row);
+        return this.state.bricks[brickColideByCoordinate];
+    } else {
+      return false;
     }
   }
 
@@ -202,7 +211,7 @@ class Breakout extends Component {
       (ballNBrickRow < this.state.brickRows)){
         let b = this.state.bricks;
 
-      if(b[brickColideByBall]){
+      if(this.isBrickAtPosition(ballNBrickColumn,ballNBrickRow)){
         let xSpeed = this.state.ballSpeedX;
         let ySpeed = this.state.ballSpeedY;
         let removeBricks = 0;
@@ -245,7 +254,7 @@ class Breakout extends Component {
           xSpeed *= -1;
         }
 
-        this.setState({
+        this.canvas && this.setState({
           score:(this.state.score+removeBricks),
           bricksLeft:(this.state.bricksLeft-removeBricks),
           bricks:b,
@@ -256,7 +265,6 @@ class Breakout extends Component {
             this.gameReset();
           }
         }.bind(this));
-
       }
     }
   }
@@ -275,31 +283,31 @@ class Breakout extends Component {
   }
 
   handlePaddleColor(e){
-    this.setState({
+    this.canvas && this.setState({
       paddleColor: e.target.value
     });
   }
 
   handleBallColor(e){
-    this.setState({
+    this.canvas && this.setState({
       ballColor: e.target.value
     });
   }
 
   handleBGColor(e){
-    this.setState({
+    this.canvas && this.setState({
       bgColor: e.target.value
     });
   }
 
   handleBrickColor(e){
-    this.setState({
+    this.canvas && this.setState({
       brickColor: e.target.value
     });
   }
 
   handleBallSize(e){
-    this.setState({
+    this.canvas && this.setState({
       ballSize: e.target.value
     });
   }
@@ -337,7 +345,7 @@ class Breakout extends Component {
 
     if (loc > 0 && loc < (this.w-(this.state.paddleWidth))){
       var x = (loc > 0 ? loc : 0);
-      this.setState({
+      this.canvas && this.setState({
         paddleX: x,
         paddleCenter: x + (this.state.paddleWidth/2)
       });
@@ -345,22 +353,22 @@ class Breakout extends Component {
   }
 
   ballReset(){
-
-    this.setState({
+    this.canvas && this.setState({
       paused:true,
       ballSpeedX:0,
       ballSpeedY:0,
       ballX: this.w/2,
       ballY:this.h/2
     });
-    var rnd = Math.random() < 0.5 ? -1 : 1;
+
 
     this.canvas.addEventListener("click", function(){
+      var rnd = Math.random() < 0.5 ? -1 : 1;
       if(this.state.paused){
-        this.setState({
+        this.canvas && this.setState({
           paused:false,
           ballSpeedX:DEFAULT_SPEED*rnd,
-          ballSpeedY:DEFAULT_SPEED,
+          ballSpeedY:DEFAULT_SPEED
         });
       }
     }.bind(this));

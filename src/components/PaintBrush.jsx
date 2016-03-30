@@ -46,18 +46,18 @@ class PaintBrush extends Component {
   draw(a){
     if(a == 'down'){
       this.canvas.style.cursor = "pointer";
-      this.setState({
+      this.canvas && this.setState({
         drawup:true
       });
     }
     if(a == 'up'){
       this.canvas.style.cursor = "default";
-      this.setState({
+      this.canvas && this.setState({
         drawup:false
       });
     }
     if(this.state.drawup){
-      this.setState({previewVisible:false});
+      this.canvas && this.setState({previewVisible:false});
       this.ctx.beginPath();
         this.ctx.moveTo(this.lastMouse.x,this.lastMouse.y);
         this.ctx.lineTo(this.mouse.x,this.mouse.y);
@@ -70,25 +70,25 @@ class PaintBrush extends Component {
   handleSave(e){
 
     let dataUrl = this.canvas.toDataURL();
-    this.setState({
+    this.canvas && this.setState({
       dataUrl: dataUrl
     });
-    this.setState({previewVisible:true});
+    this.canvas && this.setState({previewVisible:true});
   }
   handleClear(e){
     var ok = confirm("Clear it?");
     if (ok){
       this.ctx.clearRect(0,0,this.w,this.h);
-      this.setState({previewVisible:false});
+      this.canvas && this.setState({previewVisible:false});
     }
   }
   handleColorPicker(e){
-    this.setState({
+    this.canvas && this.setState({
       brushColor: e.target.value
     });
   }
   handleBrushSize(e){
-    this.setState({
+    this.canvas && this.setState({
       brushSize: e.target.value
     });
   }
