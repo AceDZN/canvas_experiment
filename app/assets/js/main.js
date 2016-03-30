@@ -24447,18 +24447,18 @@
 	    value: function draw(a) {
 	      if (a == 'down') {
 	        this.canvas.style.cursor = "pointer";
-	        this.setState({
+	        this.canvas && this.setState({
 	          drawup: true
 	        });
 	      }
 	      if (a == 'up') {
 	        this.canvas.style.cursor = "default";
-	        this.setState({
+	        this.canvas && this.setState({
 	          drawup: false
 	        });
 	      }
 	      if (this.state.drawup) {
-	        this.setState({ previewVisible: false });
+	        this.canvas && this.setState({ previewVisible: false });
 	        this.ctx.beginPath();
 	        this.ctx.moveTo(this.lastMouse.x, this.lastMouse.y);
 	        this.ctx.lineTo(this.mouse.x, this.mouse.y);
@@ -24473,10 +24473,10 @@
 	    value: function handleSave(e) {
 
 	      var dataUrl = this.canvas.toDataURL();
-	      this.setState({
+	      this.canvas && this.setState({
 	        dataUrl: dataUrl
 	      });
-	      this.setState({ previewVisible: true });
+	      this.canvas && this.setState({ previewVisible: true });
 	    }
 	  }, {
 	    key: 'handleClear',
@@ -24484,20 +24484,20 @@
 	      var ok = confirm("Clear it?");
 	      if (ok) {
 	        this.ctx.clearRect(0, 0, this.w, this.h);
-	        this.setState({ previewVisible: false });
+	        this.canvas && this.setState({ previewVisible: false });
 	      }
 	    }
 	  }, {
 	    key: 'handleColorPicker',
 	    value: function handleColorPicker(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        brushColor: e.target.value
 	      });
 	    }
 	  }, {
 	    key: 'handleBrushSize',
 	    value: function handleBrushSize(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        brushSize: e.target.value
 	      });
 	    }
@@ -24511,7 +24511,7 @@
 	        { className: 'page' },
 	        _react2['default'].createElement(
 	          'div',
-	          { className: 'action-buttons row' },
+	          { className: 'action-buttons row ' },
 	          _react2['default'].createElement(
 	            'div',
 	            { className: 'col-sm-9 text-left form-inline' },
@@ -24623,7 +24623,7 @@
 	var BRICK_COLUMNS = 20;
 	var BRICK_ROWS = 13;
 	var BRICK_GAP = 2;
-	var DEFAULT_SPEED = 5;
+	var DEFAULT_SPEED = 2.5;
 
 	var Breakout = (function (_Component) {
 	  _inherits(Breakout, _Component);
@@ -24639,7 +24639,7 @@
 	      ballSpeedX: DEFAULT_SPEED,
 	      ballSpeedY: DEFAULT_SPEED,
 	      ballColor: "#7070FF",
-	      bgColor: "#000",
+	      bgColor: "#000000",
 	      paddleColor: "#7070FF",
 	      paddleWidth: PADDLE_WIDTH,
 	      paddleHeight: 20,
@@ -24654,6 +24654,7 @@
 	      brickColor: '#fffb00',
 	      bricks: new Array(BRICK_COLUMNS),
 	      score: 0,
+	      lives: 3,
 	      bricksLeft: 0,
 	      paused: false
 	    };
@@ -24669,36 +24670,22 @@
 	      this.ctx.canvas.height = this.h;
 
 	      this.populateBricks();
-
-	      setInterval(this.renderScreen.bind(this), 1000 / FPS);
+	      this.ballReset();
+	      this.renderScreen();
 	    }
 	  }, {
 	    key: "gameReset",
 	    value: function gameReset() {
-	      this.setState({
-	        ballSize: 10,
+	      this.canvas && this.setState({
 	        ballX: 150,
 	        ballY: 150,
 	        ballSpeedX: DEFAULT_SPEED,
 	        ballSpeedY: DEFAULT_SPEED,
-	        paddleCenter: 400 + 150 / 2,
-	        paddleHeight: 20,
-	        paddleWidth: PADDLE_WIDTH,
-	        paddleX: this.w / 2 - PADDLE_WIDTH / 2,
-	        paddleBottomOffset: 50,
-	        brickRows: BRICK_ROWS,
-	        brickColumns: BRICK_COLUMNS,
-	        brickWidth: BRICK_WIDTH,
-	        brickHeight: BRICK_HEIGHT,
-	        bricks: new Array(BRICK_COLUMNS),
 	        score: 0,
-	        bricksLeft: 0,
+	        lives: 3,
 	        paused: true
 	      });
-
 	      this.populateBricks();
-	      this.ballReset();
-	      setInterval(this.renderScreen.bind(this), 1000 / FPS);
 	      this.ballReset();
 	    }
 	  }, {
@@ -24710,7 +24697,7 @@
 	      var paddleLeftX = this.state.paddleX;
 	      var paddleRightX = paddleLeftX + this.state.paddleWidth;
 
-	      this.setState({
+	      this.canvas && this.setState({
 	        paddleBorder: {
 	          TopY: paddleTopY,
 	          BottomY: paddleBottomY,
@@ -24731,7 +24718,7 @@
 	      }
 	      var b = this.state.bricks;
 
-	      this.setState({
+	      this.canvas && this.setState({
 	        paddleX: this.w / 2 - PADDLE_WIDTH / 2,
 	        bricksLeft: b.length,
 	        bricks: b,
@@ -24746,7 +24733,6 @@
 	  }, {
 	    key: "renderBlocks",
 	    value: function renderBlocks() {
-
 	      for (var row = 0; row < this.state.brickRows; row++) {
 	        for (var column = 0; column < this.state.brickColumns; column++) {
 	          var index = this.indexByColNRow(column, row);
@@ -24763,35 +24749,36 @@
 	      var y = this.state.ballY;
 
 	      this.getPaddleBorders();
-	      this.setState({
+	      this.canvas && this.setState({
 	        ballX: x + this.state.ballSpeedX,
 	        ballY: y + this.state.ballSpeedY
 	      });
 	      this.moveAll();
+	      requestAnimationFrame(this.renderScreen.bind(this));
 	    }
 	  }, {
 	    key: "ballBorders",
 	    value: function ballBorders(xSpeed, ySpeed) {
 	      if (this.state.ballX < this.state.ballSize) {
 	        xSpeed *= -1;
-	        this.setState({
+	        this.canvas && this.setState({
 	          ballSpeedX: xSpeed
 	        });
 	      }
 	      if (this.state.ballX > this.w - this.state.ballSize) {
 	        xSpeed *= -1;
-	        this.setState({
+	        this.canvas && this.setState({
 	          ballSpeedX: xSpeed
 	        });
 	      }
 	      if (this.state.ballY < this.state.ballSize) {
 	        ySpeed *= -1;
-	        this.setState({
+	        this.canvas && this.setState({
 	          ballSpeedY: ySpeed
 	        });
 	      }
 	      if (this.state.ballY > this.h - this.state.ballSize) {
-	        this.ballReset();
+	        this.startOver();
 	      }
 	    }
 	  }, {
@@ -24803,10 +24790,20 @@
 
 	        ySpeed *= -1;
 	        xSpeed = ballDistFromPaddleCenter * 0.3;
-	        this.setState({
+	        this.canvas && this.setState({
 	          ballSpeedY: ySpeed,
-	          ballSpeedX: xSpeed
+	          ballSpeedX: xSpeed / 2
 	        });
+	      }
+	    }
+	  }, {
+	    key: "isBrickAtPosition",
+	    value: function isBrickAtPosition(col, row) {
+	      if (col >= 0 && col < this.state.brickColumns && row >= 0 && row < this.state.brickRows) {
+	        var brickColideByCoordinate = this.indexByColNRow(col, row);
+	        return this.state.bricks[brickColideByCoordinate];
+	      } else {
+	        return false;
 	      }
 	    }
 	  }, {
@@ -24819,7 +24816,7 @@
 	      if (ballNBrickColumn >= 0 && ballNBrickColumn < this.state.brickColumns && ballNBrickRow >= 0 && ballNBrickRow < this.state.brickRows) {
 	        var b = this.state.bricks;
 
-	        if (b[brickColideByBall]) {
+	        if (this.isBrickAtPosition(ballNBrickColumn, ballNBrickRow)) {
 	          var xSpeed = this.state.ballSpeedX;
 	          var ySpeed = this.state.ballSpeedY;
 	          var removeBricks = 0;
@@ -24862,7 +24859,7 @@
 	            xSpeed *= -1;
 	          }
 
-	          this.setState({
+	          this.canvas && this.setState({
 	            score: this.state.score + removeBricks,
 	            bricksLeft: this.state.bricksLeft - removeBricks,
 	            bricks: b,
@@ -24881,7 +24878,6 @@
 	    value: function moveAll() {
 	      this.ballBorders(this.state.ballSpeedX, this.state.ballSpeedY);
 	      this.paddleColision(this.state.ballSpeedX, this.state.ballSpeedY);
-
 	      this.ballNBrick();
 
 	      this.drawRect(0, 0, this.w, this.h, this.state.bgColor);
@@ -24891,37 +24887,51 @@
 	      this.renderBlocks();
 	    }
 	  }, {
+	    key: "handleLivesNum",
+	    value: function handleLivesNum(e) {
+	      this.canvas && this.setState({
+	        lives: e.target.value
+	      });
+	    }
+	  }, {
+	    key: "setLivesNum",
+	    value: function setLivesNum(n) {
+	      this.canvas && this.setState({
+	        lives: n
+	      });
+	    }
+	  }, {
 	    key: "handlePaddleColor",
 	    value: function handlePaddleColor(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        paddleColor: e.target.value
 	      });
 	    }
 	  }, {
 	    key: "handleBallColor",
 	    value: function handleBallColor(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        ballColor: e.target.value
 	      });
 	    }
 	  }, {
 	    key: "handleBGColor",
 	    value: function handleBGColor(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        bgColor: e.target.value
 	      });
 	    }
 	  }, {
 	    key: "handleBrickColor",
 	    value: function handleBrickColor(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        brickColor: e.target.value
 	      });
 	    }
 	  }, {
 	    key: "handleBallSize",
 	    value: function handleBallSize(e) {
-	      this.setState({
+	      this.canvas && this.setState({
 	        ballSize: e.target.value
 	      });
 	    }
@@ -24964,7 +24974,7 @@
 
 	      if (loc > 0 && loc < this.w - this.state.paddleWidth) {
 	        var x = loc > 0 ? loc : 0;
-	        this.setState({
+	        this.canvas && this.setState({
 	          paddleX: x,
 	          paddleCenter: x + this.state.paddleWidth / 2
 	        });
@@ -24973,24 +24983,43 @@
 	  }, {
 	    key: "ballReset",
 	    value: function ballReset() {
-
-	      this.setState({
+	      this.canvas && this.setState({
 	        paused: true,
 	        ballSpeedX: 0,
 	        ballSpeedY: 0,
 	        ballX: this.w / 2,
 	        ballY: this.h / 2
 	      });
-	      var rnd = Math.random() < 0.5 ? -1 : 1;
 
 	      this.canvas.addEventListener("click", (function () {
+	        var rnd = Math.random() < 0.5 ? -1 : 1;
 	        if (this.state.paused) {
-	          this.setState({
+	          this.canvas && this.setState({
 	            paused: false,
 	            ballSpeedX: DEFAULT_SPEED * rnd,
 	            ballSpeedY: DEFAULT_SPEED
 	          });
 	        }
+	      }).bind(this));
+	    }
+	  }, {
+	    key: "startOver",
+	    value: function startOver() {
+	      var lives = this.state.lives - 1;
+	      this.setLivesNum(lives);
+	      if (lives > 0) {
+	        this.ballReset();
+	      } else {
+	        this.gameOver();
+	      }
+	    }
+	  }, {
+	    key: "gameOver",
+	    value: function gameOver() {
+	      this.setLivesNum(0);
+	      this.canvas.addEventListener("click", (function () {
+	        this.canvas.removeEventListener('click', false, false);
+	        this.gameReset();
 	      }).bind(this));
 	    }
 	  }, {
@@ -25003,13 +25032,13 @@
 	        null,
 	        _react2["default"].createElement(
 	          "div",
-	          { className: "action-buttons row" },
+	          { className: "action-buttons row " },
 	          _react2["default"].createElement(
 	            "div",
 	            { className: "col-sm-12 text-left form-inline" },
 	            _react2["default"].createElement(
 	              "div",
-	              { className: "form-group" },
+	              { className: "form-group hidden-sm" },
 	              _react2["default"].createElement(
 	                "div",
 	                { className: "input-group" },
@@ -25027,7 +25056,7 @@
 	            ),
 	            _react2["default"].createElement(
 	              "div",
-	              { className: "form-group" },
+	              { className: "form-group hidden-sm" },
 	              _react2["default"].createElement(
 	                "div",
 	                { className: "input-group" },
@@ -25045,7 +25074,7 @@
 	            ),
 	            _react2["default"].createElement(
 	              "div",
-	              { className: "form-group" },
+	              { className: "form-group hidden-sm" },
 	              _react2["default"].createElement(
 	                "div",
 	                { className: "input-group" },
@@ -25063,7 +25092,7 @@
 	            ),
 	            _react2["default"].createElement(
 	              "div",
-	              { className: "form-group" },
+	              { className: "form-group hidden-sm" },
 	              _react2["default"].createElement(
 	                "div",
 	                { className: "input-group" },
@@ -25081,7 +25110,7 @@
 	            ),
 	            _react2["default"].createElement(
 	              "div",
-	              { className: "form-group" },
+	              { className: "form-group hidden-sm" },
 	              _react2["default"].createElement(
 	                "div",
 	                { className: "input-group" },
@@ -25095,13 +25124,25 @@
 	            ),
 	            _react2["default"].createElement(
 	              "div",
-	              { className: "form-group pull-right" },
+	              { className: "form-group pull-right icon_wrap star" },
+	              _react2["default"].createElement("img", { src: "./assets/img/star.svg", className: "pull-right" }),
 	              _react2["default"].createElement(
 	                "h5",
-	                null,
+	                { className: "pull-left" },
 	                this.state.score
 	              )
-	            )
+	            ),
+	            _react2["default"].createElement(
+	              "div",
+	              { className: "form-group pull-right icon_wrap ball" },
+	              _react2["default"].createElement("img", { src: "./assets/img/ball.svg", className: "pull-right" }),
+	              _react2["default"].createElement(
+	                "h5",
+	                { className: "pull-left" },
+	                this.state.lives
+	              )
+	            ),
+	            _react2["default"].createElement("input", { type: "text", value: this.state.lives, onChange: this.handleLivesNum.bind(this) })
 	          )
 	        ),
 	        _react2["default"].createElement("canvas", {

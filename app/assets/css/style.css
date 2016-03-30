@@ -109,3 +109,33 @@ button.btn {
 .preview-box.active{
   display:block;
 }
+
+
+.form-group.icon_wrap{
+  position:relative;
+  width: 40px;
+  height: 30px;
+}
+.form-group.icon_wrap img{
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%,-50%);
+}
+.form-group.icon_wrap h5{
+  min-width: 30px;
+  line-height: 30px;
+  margin: 0;
+  text-align: center;
+  position: absolute;
+
+  top: 50%;
+  left: 50%;
+
+}
+.form-group.icon_wrap.star h5{
+  transform: translate(-50%,-45%);
+}
+.form-group.icon_wrap.ball h5{
+  transform: translate(-22px,-10px);
+}

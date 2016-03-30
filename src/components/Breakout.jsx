@@ -7,7 +7,7 @@ const BRICK_HEIGHT = 15;
 const BRICK_COLUMNS = 20;
 const BRICK_ROWS = 13;
 const BRICK_GAP = 2;
-const DEFAULT_SPEED = 5;
+const DEFAULT_SPEED =2.5;
 
 
 
@@ -22,7 +22,7 @@ class Breakout extends Component {
       ballSpeedX: DEFAULT_SPEED,
       ballSpeedY: DEFAULT_SPEED,
       ballColor: "#7070FF",
-      bgColor:"#000",
+      bgColor:"#000000",
       paddleColor:"#7070FF",
       paddleWidth: PADDLE_WIDTH,
       paddleHeight: 20,
@@ -37,6 +37,7 @@ class Breakout extends Component {
       brickColor: '#fffb00',
       bricks: new Array(BRICK_COLUMNS),
       score:0,
+      lives:3,
       bricksLeft:0,
       paused:false
     }
@@ -51,39 +52,25 @@ class Breakout extends Component {
    this.ctx.canvas.width  = this.w;
    this.ctx.canvas.height = this.h;
 
-   this.populateBricks();
 
-   setInterval(this.renderScreen.bind(this), 1000/FPS);
+   this.populateBricks();
+   this.ballReset();
+   this.renderScreen();
   }
 
   gameReset(){
     this.canvas && this.setState({
-      ballSize:10,
       ballX:150,
       ballY:150,
       ballSpeedX: DEFAULT_SPEED,
       ballSpeedY: DEFAULT_SPEED,
-      paddleCenter: 400+(150/2),
-      paddleHeight: 20,
-      paddleWidth: PADDLE_WIDTH,
-      paddleX: (this.w/2)-(PADDLE_WIDTH/2),
-      paddleBottomOffset: 50,
-      brickRows: BRICK_ROWS,
-      brickColumns: BRICK_COLUMNS,
-      brickWidth:BRICK_WIDTH,
-      brickHeight: BRICK_HEIGHT,
-      bricks: new Array(BRICK_COLUMNS),
       score:0,
-      bricksLeft:0,
+      lives:3,
       paused:true
     });
-
-   this.populateBricks();
-   this.ballReset();
-   setInterval(this.renderScreen.bind(this), 1000/FPS);
-   this.ballReset();
+    this.populateBricks();
+    this.ballReset();
   }
-
 
 
   getPaddleBorders(){
@@ -125,7 +112,6 @@ class Breakout extends Component {
   }
 
   renderBlocks(){
-
     for(var row=0; row<this.state.brickRows; row++){
       for(var column=0; column<this.state.brickColumns; column++){
         let index = this.indexByColNRow(column,row);
@@ -139,37 +125,38 @@ class Breakout extends Component {
   }
 
   renderScreen(){
-    var x = this.state.ballX;
-    var y = this.state.ballY;
+      var x = this.state.ballX;
+      var y = this.state.ballY;
 
-    this.getPaddleBorders();
-    this.canvas && this.setState({
-      ballX: (x+this.state.ballSpeedX),
-      ballY: (y+this.state.ballSpeedY)
-    });
-    this.moveAll();
+      this.getPaddleBorders();
+      this.canvas && this.setState({
+        ballX: (x+this.state.ballSpeedX),
+        ballY: (y+this.state.ballSpeedY)
+      });
+      this.moveAll();
+      requestAnimationFrame(this.renderScreen.bind(this));
   }
   ballBorders(xSpeed,ySpeed){
-    if(this.state.ballX < (this.state.ballSize)){
+    if(this.state.ballX < (this.state.ballSize) && this.state.ballSpeedX < 0.0){
       xSpeed *= -1;
       this.canvas && this.setState({
         ballSpeedX: xSpeed
       })
     }
-    if(this.state.ballX > (this.w-this.state.ballSize)){
+    if(this.state.ballX > (this.w-this.state.ballSize) && this.state.ballSpeedX > 0.0){
       xSpeed *= -1;
       this.canvas && this.setState({
         ballSpeedX: xSpeed
       })
     }
-    if(this.state.ballY < (this.state.ballSize)){
+    if(this.state.ballY < (this.state.ballSize) && this.state.ballSpeedY < 0.0){
       ySpeed *= -1;
       this.canvas && this.setState({
         ballSpeedY: ySpeed
       })
     }
     if(this.state.ballY > (this.h-this.state.ballSize)){
-      this.ballReset()
+      this.startOver()
     }
   }
 
@@ -186,7 +173,7 @@ class Breakout extends Component {
       xSpeed = ballDistFromPaddleCenter * 0.3;
       this.canvas && this.setState({
         ballSpeedY: ySpeed,
-        ballSpeedX: xSpeed
+        ballSpeedX: xSpeed/2
       })
     }
   }
@@ -272,7 +259,6 @@ class Breakout extends Component {
   moveAll(){
     this.ballBorders(this.state.ballSpeedX,this.state.ballSpeedY);
     this.paddleColision(this.state.ballSpeedX,this.state.ballSpeedY);
-
     this.ballNBrick();
 
     this.drawRect(0,0,this.w,this.h,this.state.bgColor);
@@ -282,6 +268,14 @@ class Breakout extends Component {
     this.renderBlocks();
   }
 
+  setLivesNum(n){
+    this.canvas && this.setState({
+      lives: n
+    });
+  }
+  handleLivesNum(e){
+    this.setLivesNum(e.target.value);
+  }
   handlePaddleColor(e){
     this.canvas && this.setState({
       paddleColor: e.target.value
@@ -361,7 +355,6 @@ class Breakout extends Component {
       ballY:this.h/2
     });
 
-
     this.canvas.addEventListener("click", function(){
       var rnd = Math.random() < 0.5 ? -1 : 1;
       if(this.state.paused){
@@ -374,13 +367,25 @@ class Breakout extends Component {
     }.bind(this));
 
   }
-
+  startOver(){
+    let lives = this.state.lives-1;
+    if (lives > 0){
+      this.setLivesNum(lives);
+      this.ballReset()
+    } else {
+      this.setLivesNum(0);
+      this.gameOver();
+    }
+  }
+  gameOver(){
+    this.gameReset();
+  }
   render(){
     return(
      <div>
-       <div className="action-buttons row">
+       <div className="action-buttons row ">
          <div className="col-sm-12 text-left form-inline">
-           <div className="form-group">
+           <div className="form-group hidden-sm">
              <div className="input-group">
                <span className="input-group-addon btn">
                  <label htmlFor="ball_color">Ball:</label>
@@ -388,7 +393,7 @@ class Breakout extends Component {
                <input type="color" value={this.state.ballColor} name="ball_color" className="form-control" id="ball_color" onChange={this.handleBallColor.bind(this)} />
              </div>
            </div>
-           <div className="form-group">
+           <div className="form-group hidden-sm">
              <div className="input-group">
                <span className="input-group-addon btn">
                  <label htmlFor="paddle_color">Paddle:</label>
@@ -396,7 +401,7 @@ class Breakout extends Component {
                <input type="color" value={this.state.paddleColor} name="paddle_color" className="form-control" id="paddle_color" onChange={this.handlePaddleColor.bind(this)} />
              </div>
            </div>
-           <div className="form-group">
+           <div className="form-group hidden-sm">
              <div className="input-group">
                <span className="input-group-addon btn">
                  <label htmlFor="bg_color">Background:</label>
@@ -404,7 +409,7 @@ class Breakout extends Component {
                <input type="color" name="color" className="form-control" id="bg_color" onChange={this.handleBGColor.bind(this)} />
              </div>
            </div>
-           <div className="form-group">
+           <div className="form-group hidden-sm">
              <div className="input-group">
                <span className="input-group-addon btn">
                  <label htmlFor="brick_color">Bricks:</label>
@@ -412,7 +417,7 @@ class Breakout extends Component {
                <input type="color" value={this.state.brickColor} name="brick_color" className="form-control" id="brick_color" onChange={this.handleBrickColor.bind(this)} />
              </div>
            </div>
-           <div className="form-group">
+           <div className="form-group hidden-sm">
              <div className="input-group">
                <span className="input-group-addon">
                  Ball Size:
@@ -420,9 +425,17 @@ class Breakout extends Component {
                <input type="range" min="1" max="20" name="ball_size" className="form-control" id="ball_size" onChange={this.handleBallSize.bind(this)} />
              </div>
            </div>
-           <div className="form-group pull-right">
-             <h5>{this.state.score}</h5>
+
+           <div className="form-group pull-right icon_wrap star">
+             <img src="./assets/img/star.svg" className="pull-right"/>
+             <h5 className="pull-left">{this.state.score}</h5>
            </div>
+
+           <div className="form-group pull-right icon_wrap ball">
+             <img src="./assets/img/ball.svg" className="pull-right"/>
+             <h5 className="pull-left">{this.state.lives}</h5>
+           </div>
+           <input type="text" value={this.state.lives} onChange={this.handleLivesNum.bind(this)}/>
          </div>
        </div>
 
