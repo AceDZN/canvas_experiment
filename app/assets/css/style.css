@@ -111,10 +111,24 @@ button.btn {
 }
 
 
+
+.lives_input{
+  line-height: 33px;
+  width: 50px;
+  padding: 0 10px;
+  text-align: left;
+  border-radius: 5px;
+  margin: 0px;
+  height: 33px;
+  border: 0px solid #000;
+  border-bottom: 1px solid #c0c0c0;
+  border-left: 1px solid #c0c0c0;
+}
 .form-group.icon_wrap{
   position:relative;
   width: 40px;
   height: 30px;
+  margin-left:20px;
 }
 .form-group.icon_wrap img{
   position: absolute;
@@ -135,6 +149,12 @@ button.btn {
 }
 .form-group.icon_wrap.star h5{
   transform: translate(-50%,-45%);
+}
+.form-group.icon_wrap.crown h5{
+  transform: translate(-50%,-30%);
+  text-shadow: 0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF;
+  -moz-text-shadow: 0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #fff;
+  -webkit-text-shadow: 0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF,0px 0px 2px #FFF;
 }
 .form-group.icon_wrap.ball h5{
   transform: translate(-22px,-10px);

@@ -24618,9 +24618,9 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var _CheatActionsJsx = __webpack_require__(211);
+	var _StatusBarJsx = __webpack_require__(211);
 
-	var _CheatActionsJsx2 = _interopRequireDefault(_CheatActionsJsx);
+	var _StatusBarJsx2 = _interopRequireDefault(_StatusBarJsx);
 
 	var FPS = 30;
 	var PADDLE_WIDTH = 200;
@@ -24645,9 +24645,9 @@
 	      ballY: 200,
 	      ballSpeedX: DEFAULT_SPEED,
 	      ballSpeedY: DEFAULT_SPEED,
-	      ballColor: "#7070FF",
+	      ballColor: "#FFFC79",
 	      bgColor: "#000000",
-	      paddleColor: "#7070FF",
+	      paddleColor: "#F6CABC",
 	      paddleWidth: PADDLE_WIDTH,
 	      paddleHeight: 20,
 	      paddleX: 400,
@@ -24658,9 +24658,9 @@
 	      brickColumns: BRICK_COLUMNS,
 	      brickWidth: BRICK_WIDTH,
 	      brickHeight: BRICK_HEIGHT,
-	      brickColor: '#fffb00',
+	      brickColor: '#76D6FF',
 	      bricks: new Array(BRICK_COLUMNS),
-	      score: 0,
+	      score: 0, highscore: 0,
 	      lives: 3,
 	      bricksLeft: 0,
 	      paused: false
@@ -24670,12 +24670,20 @@
 	  _createClass(Breakout, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
+
 	      this.w = this.canvas.clientWidth;
 	      this.h = this.canvas.clientHeight;
 	      this.ctx = this.canvas.getContext('2d');
 	      this.ctx.canvas.width = this.w;
 	      this.ctx.canvas.height = this.h;
 
+	      this.colors = [this.state.brickColor, "#176BF1", "#43398C"];
+	      if (typeof Storage !== undefined) {
+	        var highscore = localStorage.getItem("highestScore") || 0;
+	        this.setState({ highscore: parseInt(highscore) });
+	      } else {
+	        this.setState({ highscore: 0 });
+	      }
 	      this.populateBricks();
 	      this.ballReset();
 	      this.renderScreen();
@@ -24718,11 +24726,26 @@
 	    key: 'populateBricks',
 	    value: function populateBricks() {
 	      var i = 0;
+
 	      for (; i < 3 * this.state.brickColumns; i++) {
-	        this.state.bricks[i] = false;
+	        this.state.bricks[i] = {};
+	        this.state.bricks[i].show = false;
 	      }
 	      for (; i < this.state.brickColumns * this.state.brickRows; i++) {
-	        this.state.bricks[i] = true;
+	        var rnd = Math.floor(Math.random() * this.colors.length + 1);
+	        this.state.bricks[i] = {};
+	        this.state.bricks[i].show = true;
+	        this.state.bricks[i].hit = 0;
+
+	        if (i >= 4 * this.state.brickColumns && i < 5 * this.state.brickColumns) {
+	          this.state.bricks[i].hardness = 3;
+	        } else if (i >= 7 * this.state.brickColumns && i < 8 * this.state.brickColumns) {
+	          this.state.bricks[i].hardness = rnd;
+	        } else if (i >= 10 * this.state.brickColumns && i < 12 * this.state.brickColumns) {
+	          this.state.bricks[i].hardness = 2;
+	        }
+
+	        this.state.bricks[i].color = this.colors[this.state.bricks[i].hardness - 1];
 	      }
 	      var b = this.state.bricks;
 
@@ -24739,16 +24762,32 @@
 	      return this.state.brickColumns * row + col;
 	    }
 	  }, {
-	    key: 'renderBlocks',
-	    value: function renderBlocks() {
+	    key: 'renderBricks',
+	    value: function renderBricks() {
+	      var bricks = this.state.bricks;
 	      for (var row = 0; row < this.state.brickRows; row++) {
 	        for (var column = 0; column < this.state.brickColumns; column++) {
 	          var index = this.indexByColNRow(column, row);
-	          if (this.state.bricks[index]) {
-	            this.drawRect(this.state.brickWidth * column, this.state.brickHeight * row, this.state.brickWidth - BRICK_GAP, this.state.brickHeight - BRICK_GAP, this.state.brickColor);
+	          if (bricks[index].show) {
+	            bricks[index].x = this.state.brickWidth * column;
+	            bricks[index].y = this.state.brickHeight * row;
+	            var width = this.state.brickWidth - BRICK_GAP;
+	            var height = this.state.brickHeight - BRICK_GAP;
+	            var color;
+
+	            if (bricks[index].color) {
+	              color = bricks[index].color;
+	            } else {
+	              color = this.state.brickColor;
+	            }
+	            this.drawRect(bricks[index].x, bricks[index].y, width, height, color);
 	          }
 	        }
 	      }
+
+	      this.setState({
+	        bricks: bricks
+	      });
 	    }
 	  }, {
 	    key: 'renderScreen',
@@ -24767,7 +24806,7 @@
 	        requestAnimationFrame(this.renderScreen.bind(this));
 	      } else {
 	        cancelAnimationFrame(this.renderScreen.bind(this));
-	        this.gameOver();
+	        this.gameOver("lose");
 	      }
 	    }
 	  }, {
@@ -24821,6 +24860,35 @@
 	      }
 	    }
 	  }, {
+	    key: 'hideBrick',
+	    value: function hideBrick(brick) {
+	      var score = this.state.score + 1;
+	      var highscore = this.state.highscore;
+	      if (highscore <= score) {
+	        highscore = score;
+	        if (typeof Storage !== undefined) {
+	          localStorage.setItem("highestScore", score);
+	        }
+	      }
+
+	      var bricksLeft = this.state.bricksLeft;
+
+	      if (brick.hardness > 1) {
+	        brick.hardness--;
+	        brick.color = this.colors[brick.hardness - 1];
+	        brick.hit++;
+	        this.drawRect(brick.x, brick.y, this.state.brickWidth, this.state.brickHeight, brick.color);
+	      } else {
+	        brick.show = false;
+	        bricksLeft--;
+	      }
+	      this.setState({
+	        score: score,
+	        highscore: highscore,
+	        bricksLeft: bricksLeft
+	      });
+	    }
+	  }, {
 	    key: 'ballNBrick',
 	    value: function ballNBrick() {
 	      var ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
@@ -24830,13 +24898,10 @@
 	      if (ballNBrickColumn >= 0 && ballNBrickColumn < this.state.brickColumns && ballNBrickRow >= 0 && ballNBrickRow < this.state.brickRows) {
 	        var b = this.state.bricks;
 
-	        if (this.isBrickAtPosition(ballNBrickColumn, ballNBrickRow)) {
+	        if (this.isBrickAtPosition(ballNBrickColumn, ballNBrickRow).show) {
 	          var xSpeed = this.state.ballSpeedX;
 	          var ySpeed = this.state.ballSpeedY;
-	          var removeBricks = 0;
-
-	          b[brickColideByBall] = false;
-	          removeBricks++;
+	          this.hideBrick(b[brickColideByBall]);
 
 	          var prevBallX = this.state.ballX - this.state.ballSpeedX;
 	          var prevBallY = this.state.ballY - this.state.ballSpeedY;
@@ -24849,39 +24914,29 @@
 	          var adjTop = this.indexByColNRow(prevBrickColumn, ballNBrickRow);
 	          if (prevBrickColumn != ballNBrickColumn) {
 
-	            if (b[adjSide] == false) {
+	            if (b[adjSide] && b[adjSide].show == false) {
 	              xSpeed *= -1;
 	              colisionTestsFailed = false;
 	            }
 	          }
 	          if (prevBrickRow != ballNBrickRow) {
-	            if (b[adjTop] == false) {
+	            if (b[adjTop] && b[adjTop].show == false) {
 	              ySpeed *= -1;
 	              colisionTestsFailed = false;
 	            }
 	          }
 	          if (colisionTestsFailed) {
-	            if (b[adjSide] == true) {
-	              b[adjSide] = false;
-	              removeBricks++;
-	            }
-	            if (b[adjSide] == true) {
-	              b[adjTop] = false;
-	              removeBricks++;
-	            }
 	            ySpeed *= -1;
 	            xSpeed *= -1;
 	          }
 
 	          this.canvas && this.setState({
-	            score: this.state.score + removeBricks,
-	            bricksLeft: this.state.bricksLeft - removeBricks,
 	            bricks: b,
 	            ballSpeedY: ySpeed,
 	            ballSpeedX: xSpeed
 	          }, (function () {
 	            if (this.state.bricksLeft <= 0) {
-	              this.gameReset();
+	              this.gameOver("win");
 	            }
 	          }).bind(this));
 	        }
@@ -24898,13 +24953,11 @@
 	      this.drawBall(this.state.ballX, this.state.ballY, this.state.ballSize, this.state.ballColor);
 	      this.drawRect(this.state.paddleX, this.h - this.state.paddleBottomOffset, this.state.paddleWidth, this.state.paddleHeight, this.state.paddleColor);
 
-	      this.renderBlocks();
+	      this.renderBricks();
 	    }
 	  }, {
 	    key: 'setLivesNum',
 	    value: function setLivesNum(n) {
-
-	      console.log("handling");
 	      this.canvas && this.setState({
 	        lives: n
 	      });
@@ -25031,15 +25084,33 @@
 	    }
 	  }, {
 	    key: 'gameOver',
-	    value: function gameOver() {
+	    value: function gameOver(status) {
+	      var sec = undefined;var title = undefined;
+	      if (status == "win") {
+	        sec = 10;
+	        title = "WOW, You Removed all the bricks";
+	      } else {
+	        sec = 5;
+	        title = "GAME OVER";
+	      }
 	      this.drawRect(0, 0, this.w, this.h, "#c0c0c0");
-	      this.drawText("GAME OVER", this.w / 2, this.h / 2 - 30, "#000000", 40);
-	      this.drawText("Your Score is :" + this.state.score, this.w / 2, this.h / 2 + 20, "#000000", 40);
-	      this.drawText("[click to start again]", this.w / 2, this.h / 2 + 50, "#000000", 20);
+	      this.drawText(title, this.w / 2, this.h / 2 - 30, "#000000", 40);
+	      this.drawText("Your Score is : " + this.state.score, this.w / 2, this.h / 2 + 20, "#000000", 40);
+	      this.drawText("[We will Start In A Moment]", this.w / 2, this.h / 2 + 50, "#000000", 20);
+	      this.drawText(sec, this.w / 2, this.h / 2 + 75, "#000000", 20);
 
-	      this.canvas.addEventListener("click", (function () {
+	      var seconds = setInterval((function () {
+	        sec--;
+	        this.drawRect(0, this.h / 2 + 54, this.w, 30, "#c0c0c0");
+	        this.drawText(sec, this.w / 2, this.h / 2 + 75, "#000000", 20);
+	        if (sec <= 0) {
+	          clearInterval(seconds);
+	        }
+	      }).bind(this), 1000);
+
+	      setTimeout((function () {
 	        this.gameReset();
-	      }).bind(this));
+	      }).bind(this), 5000);
 	    }
 	  }, {
 	    key: 'render',
@@ -25049,7 +25120,7 @@
 	      return _react2['default'].createElement(
 	        'div',
 	        null,
-	        _react2['default'].createElement(_CheatActionsJsx2['default'], _extends({}, this.state, {
+	        _react2['default'].createElement(_StatusBarJsx2['default'], _extends({}, this.state, {
 	          changeLives: this.handleLivesNum.bind(this),
 	          changeBallSize: this.handleBallSize.bind(this),
 	          changeBallColor: this.handleBallColor.bind(this),
@@ -25096,17 +25167,17 @@
 
 	var _react2 = _interopRequireDefault(_react);
 
-	var CheatActions = (function (_Component) {
-	  _inherits(CheatActions, _Component);
+	var StatusBar = (function (_Component) {
+	  _inherits(StatusBar, _Component);
 
-	  function CheatActions(props) {
-	    _classCallCheck(this, CheatActions);
+	  function StatusBar(props) {
+	    _classCallCheck(this, StatusBar);
 
-	    _get(Object.getPrototypeOf(CheatActions.prototype), "constructor", this).call(this, props);
+	    _get(Object.getPrototypeOf(StatusBar.prototype), "constructor", this).call(this, props);
 	    this.state = {};
 	  }
 
-	  _createClass(CheatActions, [{
+	  _createClass(StatusBar, [{
 	    key: "componentDidMount",
 	    value: function componentDidMount() {}
 	  }, {
@@ -25120,7 +25191,7 @@
 	          { className: "col-sm-12 text-left form-inline" },
 	          _react2["default"].createElement(
 	            "div",
-	            { className: "form-group hidden-sm" },
+	            { className: "form-group hidden-xs hidden-sm" },
 	            _react2["default"].createElement(
 	              "div",
 	              { className: "input-group" },
@@ -25138,7 +25209,7 @@
 	          ),
 	          _react2["default"].createElement(
 	            "div",
-	            { className: "form-group hidden-sm" },
+	            { className: "form-group hidden-xs hidden-sm" },
 	            _react2["default"].createElement(
 	              "div",
 	              { className: "input-group" },
@@ -25156,7 +25227,7 @@
 	          ),
 	          _react2["default"].createElement(
 	            "div",
-	            { className: "form-group hidden-sm" },
+	            { className: "form-group hidden-xs hidden-sm" },
 	            _react2["default"].createElement(
 	              "div",
 	              { className: "input-group" },
@@ -25174,7 +25245,7 @@
 	          ),
 	          _react2["default"].createElement(
 	            "div",
-	            { className: "form-group hidden-sm" },
+	            { className: "form-group hidden-xs hidden-sm" },
 	            _react2["default"].createElement(
 	              "div",
 	              { className: "input-group" },
@@ -25192,7 +25263,7 @@
 	          ),
 	          _react2["default"].createElement(
 	            "div",
-	            { className: "form-group hidden-sm" },
+	            { className: "form-group hidden-xs hidden-sm" },
 	            _react2["default"].createElement(
 	              "div",
 	              { className: "input-group" },
@@ -25202,6 +25273,21 @@
 	                "Ball Size:"
 	              ),
 	              _react2["default"].createElement("input", { type: "range", min: "1", max: "20", name: "ball_size", className: "form-control", id: "ball_size", onChange: this.props.changeBallSize })
+	            )
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group hidden-xs hidden-sm" },
+	            _react2["default"].createElement("input", { type: "number", value: this.props.lives, onChange: this.props.changeLives, className: "lives_input hidden-xs hidden-sm" })
+	          ),
+	          _react2["default"].createElement(
+	            "div",
+	            { className: "form-group pull-right icon_wrap crown" },
+	            _react2["default"].createElement("img", { src: "./assets/img/crown.svg", className: "pull-right" }),
+	            _react2["default"].createElement(
+	              "h5",
+	              { className: "pull-left" },
+	              this.props.highscore
 	            )
 	          ),
 	          _react2["default"].createElement(
@@ -25223,17 +25309,16 @@
 	              { className: "pull-left" },
 	              this.props.lives
 	            )
-	          ),
-	          _react2["default"].createElement("input", { type: "text", value: this.props.lives, onChange: this.props.changeLives })
+	          )
 	        )
 	      );
 	    }
 	  }]);
 
-	  return CheatActions;
+	  return StatusBar;
 	})(_react.Component);
 
-	exports["default"] = CheatActions;
+	exports["default"] = StatusBar;
 	module.exports = exports["default"];
 
 /***/ }

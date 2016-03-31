@@ -1,5 +1,5 @@
 import React,{Component} from 'react';
-import CheatActions from './CheatActions.jsx';
+import StatusBar from './StatusBar.jsx';
 
 const FPS = 30;
 const PADDLE_WIDTH = 200;
@@ -8,8 +8,7 @@ const BRICK_HEIGHT = 15;
 const BRICK_COLUMNS = 20;
 const BRICK_ROWS = 13;
 const BRICK_GAP = 2;
-const DEFAULT_SPEED =2.5;
-
+const DEFAULT_SPEED = 2.5;
 
 
 class Breakout extends Component {
@@ -23,9 +22,9 @@ class Breakout extends Component {
       ballY:200,
       ballSpeedX: DEFAULT_SPEED,
       ballSpeedY: DEFAULT_SPEED,
-      ballColor: "#7070FF",
+      ballColor: "#FFFC79",
       bgColor:"#000000",
-      paddleColor:"#7070FF",
+      paddleColor:"#F6CABC",
       paddleWidth: PADDLE_WIDTH,
       paddleHeight: 20,
       paddleX: 400,
@@ -36,25 +35,30 @@ class Breakout extends Component {
       brickColumns: BRICK_COLUMNS,
       brickWidth:BRICK_WIDTH,
       brickHeight: BRICK_HEIGHT,
-      brickColor: '#fffb00',
+      brickColor: '#76D6FF',
       bricks: new Array(BRICK_COLUMNS),
-      score:0,
+      score:0,highscore:0,
       lives:3,
       bricksLeft:0,
       paused:false
     }
   }
 
-
-
   componentDidMount() {
+
    this.w = this.canvas.clientWidth;
    this.h = this.canvas.clientHeight;
    this.ctx = this.canvas.getContext('2d');
    this.ctx.canvas.width  = this.w;
    this.ctx.canvas.height = this.h;
 
-
+   this.colors = [this.state.brickColor, "#176BF1", "#43398C"];
+   if (typeof(Storage) !== undefined){
+     var highscore = localStorage.getItem("highestScore") || 0;
+     this.setState({highscore:parseInt(highscore)});
+   } else {
+     this.setState({highscore:0});
+   }
    this.populateBricks();
    this.ballReset();
    this.renderScreen();
@@ -101,8 +105,21 @@ class Breakout extends Component {
       this.state.bricks[i].show = false;
     }
     for(; i<(this.state.brickColumns*this.state.brickRows); i++){
+      var rnd = Math.floor((Math.random() * this.colors.length) + 1);
       this.state.bricks[i] = {};
       this.state.bricks[i].show = true;
+      this.state.bricks[i].hit =0;
+
+      if (i >= (4*this.state.brickColumns) && i < (5*(this.state.brickColumns)) ){
+        this.state.bricks[i].hardness = 3;
+      } else if (i >= (7*this.state.brickColumns) && i < (8*(this.state.brickColumns)) ){
+        this.state.bricks[i].hardness = rnd;
+
+      } else if (i >= (10*this.state.brickColumns) && i < (12*(this.state.brickColumns)) ){
+        this.state.bricks[i].hardness = 2;
+      }
+
+      this.state.bricks[i].color = this.colors[(this.state.bricks[i].hardness)-1];
     }
     let b = this.state.bricks;
 
@@ -117,15 +134,32 @@ class Breakout extends Component {
     return this.state.brickColumns * row + col;
   }
 
-  renderBlocks(){
+  renderBricks(){
+    var bricks = this.state.bricks;
     for(var row=0; row<this.state.brickRows; row++){
       for(var column=0; column<this.state.brickColumns; column++){
         let index = this.indexByColNRow(column,row);
-        if (this.state.bricks[index].show){
-          this.drawRect(this.state.brickWidth*column,(this.state.brickHeight*row),this.state.brickWidth-BRICK_GAP,this.state.brickHeight-BRICK_GAP,this.state.brickColor);
+        if (bricks[index].show){
+          bricks[index].x = this.state.brickWidth*column;
+          bricks[index].y = this.state.brickHeight*row;
+          var width = this.state.brickWidth-BRICK_GAP;
+          var height = this.state.brickHeight-BRICK_GAP;
+          var color;
+
+          if(bricks[index].color){
+            color = bricks[index].color;
+          }else{
+            color = this.state.brickColor;
+          }
+          this.drawRect(bricks[index].x,bricks[index].y,width,height,color);
         }
       }
     }
+
+    this.setState({
+      bricks
+    });
+
   }
 
   renderScreen(){
@@ -143,7 +177,7 @@ class Breakout extends Component {
         requestAnimationFrame(this.renderScreen.bind(this));
       } else {
         cancelAnimationFrame(this.renderScreen.bind(this));
-        this.gameOver();
+        this.gameOver("lose");
       }
   }
   ballBorders(xSpeed,ySpeed){
@@ -196,7 +230,38 @@ class Breakout extends Component {
       return false;
     }
   }
+  hideBrick(brick){
+    let score = this.state.score+1;
+    let highscore = this.state.highscore;
+    if(highscore <= score){
+      highscore = score;
+      if (typeof(Storage) !== undefined){
+        localStorage.setItem("highestScore", score);
+      }
+    }
 
+
+
+
+    let bricksLeft=this.state.bricksLeft;
+
+    if(brick.hardness > 1){
+      brick.hardness--;
+      brick.color = this.colors[brick.hardness-1];
+      brick.hit++;
+      this.drawRect(brick.x,brick.y,this.state.brickWidth,this.state.brickHeight,brick.color);
+    } else {
+      brick.show=false;
+      bricksLeft--;
+
+    }
+    this.setState({
+      score,
+      highscore,
+      bricksLeft
+    });
+
+  }
   ballNBrick(){
     let ballNBrickColumn = Math.floor(this.state.ballX / this.state.brickWidth);
     let ballNBrickRow = Math.floor(this.state.ballY / this.state.brickHeight);
@@ -211,10 +276,7 @@ class Breakout extends Component {
       if(this.isBrickAtPosition(ballNBrickColumn,ballNBrickRow).show){
         let xSpeed = this.state.ballSpeedX;
         let ySpeed = this.state.ballSpeedY;
-        let removeBricks = 0;
-
-        b[brickColideByBall].show=false;
-        removeBricks++;
+        this.hideBrick(b[brickColideByBall]);
 
         let prevBallX = this.state.ballX - this.state.ballSpeedX;
         let prevBallY = this.state.ballY - this.state.ballSpeedY;
@@ -227,39 +289,29 @@ class Breakout extends Component {
         var adjTop = this.indexByColNRow(prevBrickColumn,ballNBrickRow);
         if(prevBrickColumn != ballNBrickColumn){
 
-          if(b[adjSide].show==false){
+          if(b[adjSide] && b[adjSide].show==false){
             xSpeed *= -1;
             colisionTestsFailed = false;
           }
         }
         if(prevBrickRow != ballNBrickRow){
-          if(b[adjTop].show==false){
+          if(b[adjTop] && b[adjTop].show==false){
             ySpeed *= -1;
             colisionTestsFailed = false;
           }
         }
         if (colisionTestsFailed){
-          if(b[adjSide].show == true){
-            b[adjSide].show=false;
-            removeBricks++;
-          }
-          if(b[adjSide].show == true){
-            b[adjTop].show=false;
-            removeBricks++;
-          }
           ySpeed *= -1;
           xSpeed *= -1;
         }
 
         this.canvas && this.setState({
-          score:(this.state.score+removeBricks),
-          bricksLeft:(this.state.bricksLeft-removeBricks),
           bricks:b,
           ballSpeedY: ySpeed,
           ballSpeedX: xSpeed
         }, function(){
           if(this.state.bricksLeft<=0){
-            this.gameReset();
+            this.gameOver("win");
           }
         }.bind(this));
       }
@@ -275,12 +327,10 @@ class Breakout extends Component {
     this.drawBall(this.state.ballX, this.state.ballY, this.state.ballSize,this.state.ballColor);
     this.drawRect(this.state.paddleX,(this.h-this.state.paddleBottomOffset),this.state.paddleWidth,this.state.paddleHeight,this.state.paddleColor);
 
-    this.renderBlocks();
+    this.renderBricks();
   }
 
   setLivesNum(n){
-
-    console.log("handling");
     this.canvas && this.setState({
       lives: n
     });
@@ -390,21 +440,43 @@ class Breakout extends Component {
       this.setLivesNum(0);
     }
   }
-  gameOver(){
+  gameOver(status){
+    let sec; let title;
+    if(status == "win"){
+      sec = 10;
+      title = "WOW, You Removed all the bricks"
+    } else {
+      sec = 5;
+      title = "GAME OVER"
+    }
     this.drawRect(0,0,this.w,this.h,"#c0c0c0");
-    this.drawText("GAME OVER", (this.w/2),(this.h/2)-30,"#000000",40);
-    this.drawText("Your Score is :"+this.state.score, (this.w/2),(this.h/2+20),"#000000",40);
-    this.drawText("[click to start again]", (this.w/2),(this.h/2+50),"#000000",20);
+    this.drawText(title, (this.w/2),(this.h/2)-30,"#000000",40);
+    this.drawText("Your Score is : "+this.state.score, (this.w/2),(this.h/2+20),"#000000",40);
+    this.drawText("[We will Start In A Moment]", (this.w/2),(this.h/2+50),"#000000",20);
+    this.drawText(sec, (this.w/2),(this.h/2+75),"#000000",20);
 
-    this.canvas.addEventListener("click", function(){
-      this.gameReset()
-    }.bind(this));
+    var seconds = setInterval(function(){
+      sec--;
+      this.drawRect(0,(this.h/2+54),this.w,30,"#c0c0c0");
+      this.drawText(sec, (this.w/2),(this.h/2+75),"#000000",20);
+      if(sec<=0){
+        clearInterval(seconds)
+      }
+    }.bind(this), 1000);
+
+
+    setTimeout(function(){
+      this.gameReset();
+
+    }.bind(this), 5000);
+
+
 
   }
   render(){
     return(
      <div>
-       <CheatActions
+       <StatusBar
         {...this.state}
         changeLives={this.handleLivesNum.bind(this)}
         changeBallSize={this.handleBallSize.bind(this)}
