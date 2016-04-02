@@ -12,12 +12,20 @@ class StatusBar extends Component {
   componentDidMount() {
 
   }
-
+  livesCheat(){
+    if(this.props.changeLives){
+      return(
+        <div className="form-group hidden-xs hidden-sm">
+          <input type="number" value={this.props.lives} onChange={this.props.changeLives}  className="lives_input hidden-xs hidden-sm"/>
+        </div>
+      );
+    }
+  }
   render(){
     return(
        <div className="action-buttons row">
          <div className="col-sm-12 text-left form-inline">
-           
+
            <div className="form-group hidden-xs hidden-sm">
              <div className="input-group">
                <span className="input-group-addon btn">
@@ -60,9 +68,7 @@ class StatusBar extends Component {
                <input type="range" min="1" max="20" name="ball_size" className="form-control" id="ball_size" onChange={this.props.changeBallSize} />
              </div>
            </div>
-           <div className="form-group hidden-xs hidden-sm">
-             <input type="number" value={this.props.lives} onChange={this.props.changeLives}  className="lives_input hidden-xs hidden-sm"/>
-           </div>
+           {this.livesCheat()}
            <div className="form-group pull-right icon_wrap crown">
              <img src="./assets/img/crown.svg" className="pull-right"/>
              <h5 className="pull-left">{this.props.highscore}</h5>

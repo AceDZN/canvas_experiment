@@ -25121,7 +25121,7 @@
 	        'div',
 	        null,
 	        _react2['default'].createElement(_StatusBarJsx2['default'], _extends({}, this.state, {
-	          changeLives: this.handleLivesNum.bind(this),
+	          //changeLives={this.handleLivesNum.bind(this)}
 	          changeBallSize: this.handleBallSize.bind(this),
 	          changeBallColor: this.handleBallColor.bind(this),
 	          changePaddleColor: this.handlePaddleColor.bind(this),

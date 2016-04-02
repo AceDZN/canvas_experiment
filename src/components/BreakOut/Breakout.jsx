@@ -478,7 +478,7 @@ class Breakout extends Component {
      <div>
        <StatusBar
         {...this.state}
-        changeLives={this.handleLivesNum.bind(this)}
+        //changeLives={this.handleLivesNum.bind(this)}
         changeBallSize={this.handleBallSize.bind(this)}
         changeBallColor={this.handleBallColor.bind(this)}
         changePaddleColor={this.handlePaddleColor.bind(this)}
