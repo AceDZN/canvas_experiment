@@ -25181,6 +25181,17 @@
 	    key: "componentDidMount",
 	    value: function componentDidMount() {}
 	  }, {
+	    key: "livesCheat",
+	    value: function livesCheat() {
+	      if (this.props.changeLives) {
+	        return _react2["default"].createElement(
+	          "div",
+	          { className: "form-group hidden-xs hidden-sm" },
+	          _react2["default"].createElement("input", { type: "number", value: this.props.lives, onChange: this.props.changeLives, className: "lives_input hidden-xs hidden-sm" })
+	        );
+	      }
+	    }
+	  }, {
 	    key: "render",
 	    value: function render() {
 	      return _react2["default"].createElement(
@@ -25275,11 +25286,7 @@
 	              _react2["default"].createElement("input", { type: "range", min: "1", max: "20", name: "ball_size", className: "form-control", id: "ball_size", onChange: this.props.changeBallSize })
 	            )
 	          ),
-	          _react2["default"].createElement(
-	            "div",
-	            { className: "form-group hidden-xs hidden-sm" },
-	            _react2["default"].createElement("input", { type: "number", value: this.props.lives, onChange: this.props.changeLives, className: "lives_input hidden-xs hidden-sm" })
-	          ),
+	          this.livesCheat(),
 	          _react2["default"].createElement(
 	            "div",
 	            { className: "form-group pull-right icon_wrap crown" },
