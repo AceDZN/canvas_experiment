@@ -13,6 +13,9 @@ Checkout this repo, install dependencies, then start the gulp process with the f
   > webpack-dev-server
   ```
   for deployment run
+
   ```
   > webpack
   ```
+
+localhost on [http://localhost:8080/app](http://localhost:8080/app)

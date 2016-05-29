@@ -53,6 +53,12 @@ class Navbar extends Component {
                       <span className="sr-only">{this.props.current == '/breakOut' ? "(current)" : ""}</span>
                     </Link>
                   </li>
+                  <li className={this.props.current == '/videoManipulation' ? "active" : ""}>
+                    <Link to="videoManipulation">
+                      Video Manipulation
+                      <span className="sr-only">{this.props.current == '/videoManipulation' ? "(current)" : ""}</span>
+                    </Link>
+                  </li>
                 </ul>
               </div>
             </div>

@@ -16,6 +16,7 @@
   "dependencies": {
     "react": "^0.14.7",
     "react-dom": "^0.14.7",
-    "react-router": "^2.0.1"
+    "react-router": "^2.0.1",
+    "react-svg-morph": "^0.1.9"
   }
 }

@@ -4,10 +4,12 @@ import Router from 'react-router/lib/Router'
 import hashHistory from 'react-router/lib/hashHistory'
 import IndexRedirect from 'react-router/lib/IndexRedirect'
 
-var App = require('./components/App.jsx');
-var BouncingBall = require('./components/BouncingBall.jsx');
-var PaintBrush = require('./components/PaintBrush.jsx');
-var Breakout = require('./components/BreakOut/Breakout.jsx');
+import App from './components/App.jsx';
+import BouncingBall from './components/BouncingBall.jsx';
+import PaintBrush from './components/PaintBrush.jsx';
+import Breakout from './components/BreakOut/Breakout.jsx';
+import VideoManipulation from './components/VideoManipulation.jsx';
+
 
 module.exports = (
   <Router history={hashHistory}>
@@ -15,6 +17,7 @@ module.exports = (
       <Route name="bouncingBall" path="/bouncingBall" component={BouncingBall} />
       <Route name="paintBrush" path="/paintBrush" component={PaintBrush} />
       <Route name="breakOut" path="/breakOut" component={Breakout} />
+      <Route name="videoManipulation" path="/videoManipulation" component={VideoManipulation} />
       <IndexRedirect to="/bouncingBall" />
     </Route>
   </Router>
