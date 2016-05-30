@@ -88,7 +88,7 @@ button.btn {
   margin-left: 5px;
 }
 .input-group-addon.btn{
-  padding:0px
+  padding:0;
 }
 .input-group-addon label{
   display:block;
@@ -159,9 +159,9 @@ button.btn {
 }
 .form-group.icon_wrap.crown h5{
   transform: translate(-50%,-30%);
-  text-shadow: 0 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF;
-  -moz-text-shadow: 0 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #fff;
-  -webkit-text-shadow: 0 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF,0px 0 2px #FFF;
+  text-shadow: 0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF;
+  -moz-text-shadow: 0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #fff;
+  -webkit-text-shadow: 0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF,0 0 2px #FFF;
 }
 .form-group.icon_wrap.ball h5{
   transform: translate(-22px,-10px);
@@ -203,7 +203,7 @@ button.btn {
   position: absolute;
   top: 0;
   left: 0;
-  width: 0%;
+  width: 0;
   height: 100%;
   background-color: #00a0e0;
   border-radius: 0;

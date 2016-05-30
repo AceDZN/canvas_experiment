@@ -25396,13 +25396,17 @@
 
 	    _get(Object.getPrototypeOf(VideoManipulation.prototype), 'constructor', this).call(this, props);
 	    this.state = {
+	      started: false,
 	      thumb: false,
 	      timestamp: 0,
 	      duration: false,
 	      currentTime: "0:0",
 	      timePercent: 0 + "%",
+	      volume: 1,
 	      playback: false,
-	      muted: false
+	      muted: false,
+	      playbackSpeed: 'normal',
+	      playbackSpeed: 1
 	    };
 	    this.drawLoader = this.drawLoader.bind(this);
 	    this.drawThumb = this.drawThumb.bind(this);
@@ -25410,6 +25414,8 @@
 	    this.drawControllers = this.drawControllers.bind(this);
 	    this.handleVideoPlayback = this.handleVideoPlayback.bind(this);
 	    this.handleMute = this.handleMute.bind(this);
+	    this.handleVolumeChange = this.handleVolumeChange.bind(this);
+	    this.handleFullscreen = this.handleFullscreen.bind(this);
 	  }
 
 	  _createClass(VideoManipulation, [{
@@ -25433,7 +25439,8 @@
 	    value: function handleVideoPlayback() {
 	      if (this.video.paused) {
 	        this.setState({
-	          playback: true
+	          playback: true,
+	          started: true
 	        }, (function () {
 	          this.video.play();
 	        }).bind(this));
@@ -25455,6 +25462,24 @@
 	        this.video.muted = !this.video.muted;
 	      }).bind(this));
 	      return false;
+	    }
+	  }, {
+	    key: 'handleVolumeChange',
+	    value: function handleVolumeChange(e) {
+
+	      this.setState({
+	        volume: e.target.value
+	      }, function () {
+	        this.video.volume = this.state.volume;
+	      });
+	    }
+	  }, {
+	    key: 'handlePlaybackSpeed',
+	    value: function handlePlaybackSpeed(playbackSpeed) {
+	      this.setState({ playbackSpeed: playbackSpeed }, (function () {
+	        this.video.playbackRate = playbackSpeed;
+	        return false;
+	      }).bind(this));
 	    }
 	  }, {
 	    key: 'drawControllers',
@@ -25484,6 +25509,13 @@
 	      }).bind(this));
 	    }
 	  }, {
+	    key: 'handleFullscreen',
+	    value: function handleFullscreen() {
+	      this.video.webkitEnterFullscreen();
+	      this.video.mozRequestFullScreen();
+	      return false;
+	    }
+	  }, {
 	    key: 'drawLoader',
 	    value: function drawLoader() {
 	      this.setState({
@@ -25494,9 +25526,9 @@
 	      this.ctx.font = "20px sans-serif";
 	      this.ctx.fillStyle = "#c0c0c0";
 	      this.ctx.textAlign = "center";
-	      this.ctx.fillText("Waiting for interaction...", this.w / 2, this.h / 2);
+	      this.ctx.fillText("Waiting for Screenshot...", this.w / 2, this.h / 2);
 	      this.ctx.strokeStyle = "rgba(225,225,225, 0.20)";
-	      this.ctx.strokeText("Waiting for interaction...", this.w / 2, this.h / 2);
+	      this.ctx.strokeText("Waiting for Screenshot...", this.w / 2, this.h / 2);
 	    }
 	  }, {
 	    key: 'drawThumb',
@@ -25524,24 +25556,58 @@
 	      var timelineStyle = {
 	        width: this.state.timePercent
 	      };
+	      var volumeKnobStyle = {
+	        left: this.state.volumePercent
+	      };
 	      return _react2['default'].createElement(
 	        'div',
-	        { className: 'page' },
+	        { className: 'page mt20' },
 	        _react2['default'].createElement(
 	          'div',
 	          { className: 'action-buttons row' },
 	          _react2['default'].createElement(
 	            'div',
-	            { className: 'col-sm-6 text-left' },
+	            { className: 'col-sm-6' },
 	            _react2['default'].createElement(
-	              'button',
-	              { type: 'button', className: 'btn btn-primary', onClick: this.drawThumb },
-	              'Generate Thumbnail'
-	            ),
-	            _react2['default'].createElement(
-	              'button',
-	              { type: 'button', className: 'btn btn-danger', onClick: this.drawLoader },
-	              'Clear'
+	              'div',
+	              { className: 'action-buttons row' },
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'col-xs-6 col-sm-6 text-left' },
+	                _react2['default'].createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-primary', onClick: this.drawThumb },
+	                  'Generate Thumbnail'
+	                ),
+	                _react2['default'].createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-danger', onClick: this.drawLoader },
+	                  'Clear'
+	                )
+	              ),
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'col-xs-6 col-sm-4 col-sm-offset-2 text-right' },
+	                _react2['default'].createElement(
+	                  'div',
+	                  { className: 'input-group' },
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon " + (this.state.playbackSpeed == 0.5 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 0.5) },
+	                    '.5x'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon " + (this.state.playbackSpeed == 1 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 1) },
+	                    '1x'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon " + (this.state.playbackSpeed == 2 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 2) },
+	                    '2x'
+	                  )
+	                )
+	              )
 	            )
 	          ),
 	          _react2['default'].createElement(
@@ -25559,19 +25625,7 @@
 	          { className: 'row' },
 	          _react2['default'].createElement(
 	            'div',
-	            { className: 'col-xs-12 col-sm-6' },
-	            _react2['default'].createElement(
-	              'video',
-	              { id: 'v', controls: true, loop: true, width: '500', ref: 'video' },
-	              _react2['default'].createElement('source', { src: './assets/video/video_demo.webm', type: 'video/webm' }),
-	              _react2['default'].createElement('source', { src: './assets/video/video_demo.ogv', type: 'video/ogg' }),
-	              _react2['default'].createElement('source', { src: './assets/video/video_demo.mp4', type: 'video/mp4' }),
-	              _react2['default'].createElement(
-	                'p',
-	                null,
-	                'Your browser does not support the video tag.'
-	              )
-	            ),
+	            { className: 'col-xs-12 col-sm-6 relative video_wrap' },
 	            _react2['default'].createElement(
 	              'div',
 	              { className: 'custom-controls' },
@@ -25598,30 +25652,48 @@
 	                ),
 	                _react2['default'].createElement(
 	                  'div',
-	                  { className: 'col-xs-2' },
-	                  this.state.currentTime,
-	                  ' / ',
-	                  this.state.duration
+	                  { className: 'col-xs-1' },
+	                  this.state.started ? this.state.currentTime : this.state.duration
 	                ),
 	                _react2['default'].createElement(
 	                  'div',
-	                  { className: 'col-xs-2' },
-	                  _react2['default'].createElement(
-	                    _reactSvgMorph.MorphReplace,
-	                    { rotation: 'none', width: 20, height: 20, onClick: this.handleMute },
-	                    this.state.muted ? _react2['default'].createElement(_IconicDisplayJsx2['default'], { width: 20, height: 20, key: 'mute', svg: 'mute', fill: '#00a0e0' }) : _react2['default'].createElement(_IconicDisplayJsx2['default'], { width: 20, height: 20, key: 'unmute', svg: 'unmute', fill: '#00a0e0' })
-	                  ),
+	                  { className: 'col-xs-3' },
 	                  _react2['default'].createElement(
 	                    'div',
-	                    { className: 'volumeBar' },
-	                    _react2['default'].createElement('div', { className: 'volume' })
+	                    { className: 'row' },
+	                    _react2['default'].createElement(
+	                      'div',
+	                      { className: 'col-xs-3' },
+	                      _react2['default'].createElement(
+	                        _reactSvgMorph.MorphReplace,
+	                        { rotation: 'none', width: 20, height: 20, onClick: this.handleMute },
+	                        this.state.muted ? _react2['default'].createElement(_IconicDisplayJsx2['default'], { width: 20, height: 20, key: 'mute', svg: 'mute', fill: '#00a0e0' }) : _react2['default'].createElement(_IconicDisplayJsx2['default'], { width: 20, height: 20, key: 'unmute', svg: 'unmute', fill: '#00a0e0' })
+	                      )
+	                    ),
+	                    _react2['default'].createElement(
+	                      'div',
+	                      { className: 'col-xs-9' },
+	                      _react2['default'].createElement('input', { id: 'volume', type: 'range', min: '0', max: '1', step: '0.1', value: this.state.volume, onChange: this.handleVolumeChange })
+	                    )
 	                  )
 	                ),
 	                _react2['default'].createElement(
 	                  'div',
-	                  { className: 'col-xs-1' },
-	                  'F'
+	                  { className: 'col-xs-1 form-group' },
+	                  _react2['default'].createElement(_IconicDisplayJsx2['default'], { svg: 'fullscreen', fill: '#00a0e0', width: 20, height: 20, onClick: this.handleFullscreen })
 	                )
+	              )
+	            ),
+	            _react2['default'].createElement(
+	              'video',
+	              { id: 'v', loop: true, width: '500', ref: 'video' },
+	              _react2['default'].createElement('source', { src: './assets/video/video_demo.webm', type: 'video/webm' }),
+	              _react2['default'].createElement('source', { src: './assets/video/video_demo.ogv', type: 'video/ogg' }),
+	              _react2['default'].createElement('source', { src: './assets/video/video_demo.mp4', type: 'video/mp4' }),
+	              _react2['default'].createElement(
+	                'p',
+	                null,
+	                'Your browser does not support the video tag.'
 	              )
 	            )
 	          ),
@@ -25638,52 +25710,13 @@
 	  return VideoManipulation;
 	})(_react.Component);
 
-	var Checked = (function (_React$Component) {
-	  _inherits(Checked, _React$Component);
-
-	  function Checked() {
-	    _classCallCheck(this, Checked);
-
-	    _get(Object.getPrototypeOf(Checked.prototype), 'constructor', this).apply(this, arguments);
-	  }
-
-	  _createClass(Checked, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2['default'].createElement(
-	        'svg',
-	        { width: '24', fill: '#00ea00', height: '24', viewBox: '0 0 24 24' },
-	        _react2['default'].createElement('path', { d: 'M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z' })
-	      );
-	    }
-	  }]);
-
-	  return Checked;
-	})(_react2['default'].Component);
-
-	var CheckBox = (function (_React$Component2) {
-	  _inherits(CheckBox, _React$Component2);
-
-	  function CheckBox() {
-	    _classCallCheck(this, CheckBox);
-
-	    _get(Object.getPrototypeOf(CheckBox.prototype), 'constructor', this).apply(this, arguments);
-	  }
-
-	  _createClass(CheckBox, [{
-	    key: 'render',
-	    value: function render() {
-	      return _react2['default'].createElement(
-	        'svg',
-	        { width: '24', height: '24', fill: '#666666', viewBox: '0 0 24 24' },
-	        _react2['default'].createElement('path', { d: 'M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z' })
-	      );
-	    }
-	  }]);
-
-	  return CheckBox;
-	})(_react2['default'].Component);
-
+	function getOffset(el) {
+	  el = el.getBoundingClientRect();
+	  return {
+	    left: el.left + window.scrollX,
+	    top: el.top + window.scrollY
+	  };
+	}
 	exports['default'] = VideoManipulation;
 	module.exports = exports['default'];
 
@@ -29433,6 +29466,18 @@
 	              _react2["default"].createElement("rect", { id: "Rectangle-1", fill: "none", x: "0", y: "0", width: "508.528", height: "508.528" }),
 	              _react2["default"].createElement("path", { style: "fill:#010002;", d: "M263.54,0.116c-5.784-0.54-12.554,0.858-20.531,5.689c0,0-132.533,115.625-138.317,121.314H31.782 C14.239,127.15,0,141.389,0,158.933v194.731c0,17.607,14.239,31.782,31.782,31.782h72.941 c5.784,5.753,138.317,117.277,138.317,117.277c7.977,4.799,14.747,6.229,20.531,5.689c11.76-1.112,20.023-10.965,22.534-21.358 c0.095-1.017,0.095-464.533-0.064-465.55C283.563,11.081,275.268,1.228,263.54,0.116z" }),
 	              _react2["default"].createElement("path", { style: "fill:#010002;", d: "M447.974,254.28l54.857-54.857c7.596-7.564,7.596-19.864,0-27.428 c-7.564-7.564-19.864-7.564-27.428,0l-54.857,54.888l-54.888-54.888c-7.532-7.564-19.864-7.564-27.397,0 c-7.564,7.564-7.564,19.864,0,27.428l54.857,54.857l-54.857,54.888c-7.564,7.532-7.564,19.864,0,27.396 c7.532,7.564,19.864,7.564,27.396,0l54.888-54.857l54.857,54.857c7.564,7.564,19.864,7.564,27.428,0 c7.564-7.532,7.564-19.864,0-27.396L447.974,254.28z" })
+	            )
+	          );
+	          break;
+	        case "fullscreen":
+	          return _react2["default"].createElement(
+	            "svg",
+	            _extends({}, this.props, { onMouseEnter: this.onHoverIn, fill: this.props.fill, onMouseLeave: this.onHoverOut, className: this.state.className, width: this.props.width, height: this.props.height, viewBox: "0 0 184.129 184.129", version: "1.1" }),
+	            _react2["default"].createElement(
+	              "g",
+	              null,
+	              _react2["default"].createElement("rect", { id: "Rectangle-1", fill: "none", x: "0", y: "0", width: "184.129", height: "184.129" }),
+	              _react2["default"].createElement("path", { d: "M184.127,106.556c0-3.033-1.827-5.769-4.63-6.929c-2.804-1.163-6.028-0.519-8.174,1.625l-29.732,29.73l-38.92-38.92l38.918-38.917l29.733,29.733c1.436,1.435,3.354,2.196,5.306,2.196c0.966,0,1.94-0.187,2.868-0.571c2.803-1.16,4.63-3.896,4.63-6.929V7.502c0-4.143-3.357-7.5-7.5-7.5h-70.072c-3.033,0-5.769,1.827-6.929,4.63c-1.161,2.803-0.52,6.028,1.625,8.174l29.731,29.732L92.064,81.455L53.146,42.537l29.732-29.732c2.145-2.146,2.786-5.371,1.625-8.174c-1.16-2.803-3.896-4.63-6.929-4.63L7.5,0C5.511,0,3.604,0.79,2.196,2.196C0.79,3.604,0,5.511,0,7.5v70.074c0,3.033,1.827,5.768,4.63,6.929c0.928,0.385,1.902,0.571,2.868,0.571c1.952,0,3.87-0.762,5.305-2.196l29.735-29.733l38.919,38.918l-38.922,38.922l-29.731-29.732c-2.146-2.146-5.372-2.789-8.174-1.625c-2.803,1.16-4.63,3.896-4.63,6.929v70.073c0,1.989,0.79,3.896,2.196,5.304c1.407,1.406,3.314,2.196,5.304,2.196l70.072-0.001c3.033,0,5.769-1.827,6.929-4.63c1.161-2.803,0.52-6.028-1.625-8.174l-29.733-29.732l38.922-38.922l38.92,38.92l-29.733,29.734c-2.145,2.146-2.786,5.371-1.625,8.174c1.16,2.803,3.896,4.63,6.929,4.63h70.074c1.989,0,3.896-0.79,5.304-2.196c1.406-1.407,2.196-3.314,2.196-5.304L184.127,106.556z M169.127,15.002v44.467l-44.466-44.467H169.127z M15,15l44.468,0.001L15,59.468V15z M15,169.129v-44.467l44.466,44.466L15,169.129z M124.661,169.128l44.467-44.466l0.001,44.466H124.661z" })
 	            )
 	          );
 	          break;

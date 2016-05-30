@@ -1,16 +1,16 @@
 module.exports = {
   entry: [
-    './src/index.js'
+    "./src/index.js"
   ],
   output:{
     path: __dirname,
-    filename: 'app/assets/js/main.js'
+    filename: "app/assets/js/main.js"
   },
   module: {
     loaders: [{
       test: /\.jsx?$/,
-      loader: 'babel',
-      exclude: '/node_modules'
+      loader: "babel",
+      exclude: "/node_modules"
     }]
   }
 }
