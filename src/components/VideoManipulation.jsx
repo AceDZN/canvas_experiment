@@ -7,20 +7,26 @@ class VideoManipulation extends Component {
   constructor(props){
     super(props);
     this.state = {
+      started:false,
       thumb:false,
       timestamp: 0,
       duration:false,
       currentTime:"0:0",
       timePercent:0+"%",
+      volume:1,
       playback:false,
-      muted:false
+      muted:false,
+      playbackSpeed: 'normal',
+      playbackSpeed:1
     }
     this.drawLoader = this.drawLoader.bind(this);
     this.drawThumb = this.drawThumb.bind(this);
     this.downloadImage = this.downloadImage.bind(this);
     this.drawControllers = this.drawControllers.bind(this);
     this.handleVideoPlayback = this.handleVideoPlayback.bind(this);
-    this.handleMute = this.handleMute.bind(this)
+    this.handleMute = this.handleMute.bind(this);
+    this.handleVolumeChange = this.handleVolumeChange.bind(this);
+    this.handleFullscreen = this.handleFullscreen.bind(this);
   }
   componentWillMount(){
 
@@ -40,7 +46,8 @@ class VideoManipulation extends Component {
   handleVideoPlayback(){
     if(this.video.paused) {
       this.setState({
-        playback:true
+        playback:true,
+        started:true
       },function(){
         this.video.play()
       }.bind(this));
@@ -62,7 +69,25 @@ class VideoManipulation extends Component {
       }.bind(this));
     return false;
   }
+  handleVolumeChange(e){
 
+      this.setState({
+        volume: e.target.value
+      },function(){
+        this.video.volume = this.state.volume
+      });
+
+
+  }
+
+
+  handlePlaybackSpeed(playbackSpeed) {
+    this.setState({playbackSpeed},
+      function(){
+        this.video.playbackRate = playbackSpeed;
+        return false;
+      }.bind(this))
+  }
   drawControllers(){
     this.video.addEventListener("loadedmetadata", function() {
       var minutes = Math.floor(this.video.duration / 60);
@@ -88,6 +113,11 @@ class VideoManipulation extends Component {
       });
     }.bind(this));
   }
+  handleFullscreen(){
+    this.video.webkitEnterFullscreen();
+    this.video.mozRequestFullScreen();
+    return false;
+  }
   drawLoader(){
     this.setState({
       thumb:false,
@@ -97,9 +127,9 @@ class VideoManipulation extends Component {
     this.ctx.font = "20px sans-serif";
     this.ctx.fillStyle = "#c0c0c0";
     this.ctx.textAlign = "center";
-    this.ctx.fillText("Waiting for interaction...",(this.w/2),(this.h/2));
+    this.ctx.fillText("Waiting for Screenshot...",(this.w/2),(this.h/2));
     this.ctx.strokeStyle = "rgba(225,225,225, 0.20)";
-    this.ctx.strokeText("Waiting for interaction...",(this.w/2),(this.h/2));
+    this.ctx.strokeText("Waiting for Screenshot...",(this.w/2),(this.h/2));
   }
   drawThumb(){
     this.setState({
@@ -121,20 +151,66 @@ class VideoManipulation extends Component {
     var timelineStyle = {
       width: this.state.timePercent
     }
+    var volumeKnobStyle = {
+      left: this.state.volumePercent
+    }
    return (
-     <div className="page">
+     <div className="page mt20">
        <div className="action-buttons row">
-         <div className="col-sm-6 text-left">
-           <button type="button" className="btn btn-primary" onClick={this.drawThumb}>Generate Thumbnail</button>
-           <button type="button" className="btn btn-danger" onClick={this.drawLoader}>Clear</button>
+         <div className="col-sm-6">
+           <div className="action-buttons row">
+             <div className="col-xs-6 col-sm-6 text-left">
+               <button type="button" className="btn btn-primary" onClick={this.drawThumb}>Generate Thumbnail</button>
+               <button type="button" className="btn btn-danger" onClick={this.drawLoader}>Clear</button>
+             </div>
+             <div className="col-xs-6 col-sm-4 col-sm-offset-2 text-right">
+               <div className="input-group">
+                <span className={"input-group-addon "+ (this.state.playbackSpeed==0.5 ? "active" : "")} onClick={this.handlePlaybackSpeed.bind(this,0.5)}>.5x</span>
+                <span className={"input-group-addon "+ (this.state.playbackSpeed==1 ? "active" : "")} onClick={this.handlePlaybackSpeed.bind(this,1)}>1x</span>
+                <span className={"input-group-addon "+ (this.state.playbackSpeed==2 ? "active" : "")} onClick={this.handlePlaybackSpeed.bind(this,2)}>2x</span>
+               </div>
+             </div>
+           </div>
          </div>
          <div className="col-sm-6 text-right">
            <button type="button" className={' btn btn-success ' + (this.state.thumb?'visible':'hidden')} onClick={this.downloadImage}>Save Screenshot</button>
          </div>
        </div>
        <div className="row">
-         <div className="col-xs-12 col-sm-6">
-          <video id='v' controls loop width="500" ref="video">
+         <div className="col-xs-12 col-sm-6 relative video_wrap">
+           <div className="custom-controls">
+             <div className="row">
+               <div className="col-xs-1">
+                 <MorphReplace rotation="none" width={20} height={20} onClick={this.handleVideoPlayback}>
+                     {this.state.playback?<IconicDisplay width={20} height={20} key="pause" svg="pause" fill="#00a0e0"  />:<IconicDisplay width={20} height={20} key="play" svg="play" fill="#00a0e0"  />}
+                 </MorphReplace>
+               </div>
+               <div className="col-xs-6">
+                 <div className="progressBar" ref="progressBar">
+                   <div className="timeBar" ref="timeBar" style={timelineStyle}></div>
+                 </div>
+               </div>
+               <div className="col-xs-1">
+                  {this.state.started ? this.state.currentTime:this.state.duration}
+               </div>
+               <div className="col-xs-3">
+                 <div className="row">
+                   <div className="col-xs-3">
+                     <MorphReplace rotation="none" width={20} height={20} onClick={this.handleMute}>
+                         {this.state.muted?<IconicDisplay width={20} height={20} key="mute" svg="mute" fill="#00a0e0"  />:<IconicDisplay width={20} height={20} key="unmute" svg="unmute" fill="#00a0e0"  />}
+                     </MorphReplace>
+                   </div>
+                   <div className="col-xs-9">
+                     <input id="volume" type="range" min="0" max="1" step="0.1" value={this.state.volume} onChange={this.handleVolumeChange}/>
+                   </div>
+                 </div>
+               </div>
+               <div className="col-xs-1 form-group">
+                 <IconicDisplay svg="fullscreen" fill="#00a0e0" width={20} height={20} onClick={this.handleFullscreen} />
+               </div>
+             </div>
+           </div>
+          <video id='v' loop width="500" ref="video">
             <source src='./assets/video/video_demo.webm' type='video/webm' />
             <source src='./assets/video/video_demo.ogv' type='video/ogg' />
             <source src='./assets/video/video_demo.mp4' type='video/mp4' />
@@ -142,37 +218,7 @@ class VideoManipulation extends Component {
 
           </video>
 
-          <div className="custom-controls">
-            <div className="row">
-              <div className="col-xs-1">
-                <MorphReplace rotation="none" width={20} height={20} onClick={this.handleVideoPlayback}>
-                    {this.state.playback?<IconicDisplay width={20} height={20} key="pause" svg="pause" fill="#00a0e0"  />:<IconicDisplay width={20} height={20} key="play" svg="play" fill="#00a0e0"  />}
-                </MorphReplace>
-              </div>
-              <div className="col-xs-6">
-                <div className="progressBar" ref="progressBar">
-                  <div className="timeBar" ref="timeBar" style={timelineStyle}></div>
-                </div>
-              </div>
-              <div className="col-xs-2">
-                {this.state.currentTime} / {this.state.duration}
-              </div>
-              <div className="col-xs-2">
-                <MorphReplace rotation="none" width={20} height={20} onClick={this.handleMute}>
-                    {this.state.muted?<IconicDisplay width={20} height={20} key="mute" svg="mute" fill="#00a0e0"  />:<IconicDisplay width={20} height={20} key="unmute" svg="unmute" fill="#00a0e0"  />}
-                </MorphReplace>
-                <div className="volumeBar">
-                    <div className="volume"></div>
-                </div>
-              </div>
-              <div className="col-xs-1">
-                F
-              </div>
-            </div>
 
-
-
-          </div>
         </div>
         <div className="col-xs-12 col-sm-6">
           <canvas ref="canvas" />
@@ -181,22 +227,11 @@ class VideoManipulation extends Component {
      </div>);
   }
 }
-class Checked extends React.Component {
-    render() {
-        return (
-            <svg width="24" fill="#00ea00" height="24" viewBox="0 0 24 24">
-                <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/>
-            </svg>
-        );
-    }
-}
-class CheckBox extends React.Component {
-    render() {
-        return (
-            <svg width="24" height="24" fill="#666666" viewBox="0 0 24 24">
-                <path d="M19 5v14H5V5h14m0-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2z"/>
-            </svg>
-        );
-    }
+function getOffset(el) {
+  el = el.getBoundingClientRect();
+  return {
+    left: el.left + window.scrollX,
+    top: el.top + window.scrollY
+  }
 }
 export default VideoManipulation
