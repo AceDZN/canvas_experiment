@@ -62,8 +62,10 @@ class StatusBar extends Component {
            </div>
            <div className="form-group hidden-xs hidden-sm">
              <div className="input-group">
-               <span className="input-group-addon">
-                 Ball Size:
+               <span className="input-group-addon btn">
+                 <label htmlFor="ball_size">
+                   Ball Size:
+                 </label>
                </span>
                <input type="range" min="1" max="20" name="ball_size" className="form-control" id="ball_size" onChange={this.props.changeBallSize} />
              </div>

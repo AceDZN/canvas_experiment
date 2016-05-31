@@ -219,17 +219,18 @@ button.btn {
   top: -3px;
   border-radius: 0 10px 10px 0;-moz-border-radius: 0 10px 10px 0;-webkit-border-radius: 0 10px 10px 0;
 }
-span.input-group-addon {
+.action-buttons.light span.input-group-addon {
   height: 34px;
   font-size: 16px;
   color: #2C2C2A;
   font-weight: 100;
 }
-span.input-group-addon.active {
+.action-buttons.light span.input-group-addon.active {
   background: #CCCCCC;
   color: #fff;
 }
 
-input[type="range"]#volume {
+.video_wrap input[type="range"] {
   display: inline;
+  margin-top: 5px;
 }

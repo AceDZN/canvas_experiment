@@ -25310,8 +25310,12 @@
 	              { className: "input-group" },
 	              _react2["default"].createElement(
 	                "span",
-	                { className: "input-group-addon" },
-	                "Ball Size:"
+	                { className: "input-group-addon btn" },
+	                _react2["default"].createElement(
+	                  "label",
+	                  { htmlFor: "ball_size" },
+	                  "Ball Size:"
+	                )
 	              ),
 	              _react2["default"].createElement("input", { type: "range", min: "1", max: "20", name: "ball_size", className: "form-control", id: "ball_size", onChange: this.props.changeBallSize })
 	            )
@@ -25396,6 +25400,7 @@
 
 	    _get(Object.getPrototypeOf(VideoManipulation.prototype), 'constructor', this).call(this, props);
 	    this.state = {
+	      fileName: 'video_demo',
 	      started: false,
 	      thumb: false,
 	      timestamp: 0,
@@ -25405,7 +25410,6 @@
 	      volume: 1,
 	      playback: false,
 	      muted: false,
-	      playbackSpeed: 'normal',
 	      playbackSpeed: 1
 	    };
 	    this.drawLoader = this.drawLoader.bind(this);
@@ -25520,15 +25524,16 @@
 	    value: function drawLoader() {
 	      this.setState({
 	        thumb: false,
-	        timestamp: 0
+	        timestamp: 0,
+	        playbackSpeed: 1
 	      });
 	      this.ctx.clearRect(0, 0, this.w, this.h);
 	      this.ctx.font = "20px sans-serif";
 	      this.ctx.fillStyle = "#c0c0c0";
 	      this.ctx.textAlign = "center";
-	      this.ctx.fillText("Waiting for Screenshot...", this.w / 2, this.h / 2);
+	      this.ctx.fillText("Waiting for Thumbnail...", this.w / 2, this.h / 2);
 	      this.ctx.strokeStyle = "rgba(225,225,225, 0.20)";
-	      this.ctx.strokeText("Waiting for Screenshot...", this.w / 2, this.h / 2);
+	      this.ctx.strokeText("Waiting for Thumbnail...", this.w / 2, this.h / 2);
 	    }
 	  }, {
 	    key: 'drawThumb',
@@ -25546,13 +25551,30 @@
 	      var aLink = document.createElement('a');
 	      var evt = document.createEvent("HTMLEvents");
 	      evt.initEvent("click");
-	      aLink.download = 'thumb_' + this.state.timestamp + '.png';
+	      aLink.download = this.state.fileName + '_thumb_' + this.state.timestamp + '.png';
 	      aLink.href = image;
 	      aLink.dispatchEvent(evt);
 	    }
 	  }, {
+	    key: 'handleVideoChange',
+	    value: function handleVideoChange(e) {
+	      this.setState({
+	        fileName: e.target.value
+	      }, (function () {
+	        this.reloadVideo();
+	      }).bind(this));
+	    }
+	  }, {
+	    key: 'reloadVideo',
+	    value: function reloadVideo() {
+	      this.video.load();
+	      this.drawLoader();
+	    }
+	  }, {
 	    key: 'render',
 	    value: function render() {
+	      var _this = this;
+
 	      var timelineStyle = {
 	        width: this.state.timePercent
 	      };
@@ -25564,7 +25586,7 @@
 	        { className: 'page mt20' },
 	        _react2['default'].createElement(
 	          'div',
-	          { className: 'action-buttons row' },
+	          { className: 'action-buttons light row' },
 	          _react2['default'].createElement(
 	            'div',
 	            { className: 'col-sm-6' },
@@ -25573,21 +25595,27 @@
 	              { className: 'action-buttons row' },
 	              _react2['default'].createElement(
 	                'div',
-	                { className: 'col-xs-6 col-sm-6 text-left' },
+	                { className: 'col-xs-6 col-sm-4 text-left' },
 	                _react2['default'].createElement(
-	                  'button',
-	                  { type: 'button', className: 'btn btn-primary', onClick: this.drawThumb },
-	                  'Generate Thumbnail'
-	                ),
-	                _react2['default'].createElement(
-	                  'button',
-	                  { type: 'button', className: 'btn btn-danger', onClick: this.drawLoader },
-	                  'Clear'
+	                  'select',
+	                  { className: 'form-control', onChange: function (e) {
+	                      _this.handleVideoChange(e);
+	                    } },
+	                  _react2['default'].createElement(
+	                    'option',
+	                    { value: 'video_demo' },
+	                    'Video Demo 1'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'option',
+	                    { value: 'video_demo2' },
+	                    'Video Demo 2'
+	                  )
 	                )
 	              ),
 	              _react2['default'].createElement(
 	                'div',
-	                { className: 'col-xs-6 col-sm-4 col-sm-offset-2 text-right' },
+	                { className: 'col-xs-6 col-sm-4 col-sm-offset-4 text-right' },
 	                _react2['default'].createElement(
 	                  'div',
 	                  { className: 'input-group' },
@@ -25614,9 +25642,31 @@
 	            'div',
 	            { className: 'col-sm-6 text-right' },
 	            _react2['default'].createElement(
-	              'button',
-	              { type: 'button', className: ' btn btn-success ' + (this.state.thumb ? 'visible' : 'hidden'), onClick: this.downloadImage },
-	              'Save Screenshot'
+	              'div',
+	              { className: 'action-buttons row' },
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'col-sm-6 text-left' },
+	                _react2['default'].createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-primary', onClick: this.drawThumb },
+	                  'Generate Thumbnail'
+	                )
+	              ),
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'col-sm-6 text-right' },
+	                _react2['default'].createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-success ' + (this.state.thumb ? 'visible' : 'hidden'), onClick: this.downloadImage },
+	                  'Save Thumbnail'
+	                ),
+	                _react2['default'].createElement(
+	                  'button',
+	                  { type: 'button', className: 'btn btn-danger ' + (this.state.thumb ? 'visible' : 'hidden'), onClick: this.drawLoader },
+	                  'Clear'
+	                )
+	              )
 	            )
 	          )
 	        ),
@@ -25686,10 +25736,10 @@
 	            ),
 	            _react2['default'].createElement(
 	              'video',
-	              { id: 'v', loop: true, width: '500', ref: 'video' },
-	              _react2['default'].createElement('source', { src: './assets/video/video_demo.webm', type: 'video/webm' }),
-	              _react2['default'].createElement('source', { src: './assets/video/video_demo.ogv', type: 'video/ogg' }),
-	              _react2['default'].createElement('source', { src: './assets/video/video_demo.mp4', type: 'video/mp4' }),
+	              { id: 'v', loop: true, width: '500', ref: 'video', className: this.state.fileName },
+	              _react2['default'].createElement('source', { src: './assets/video/' + this.state.fileName + '.webm', type: 'video/webm' }),
+	              _react2['default'].createElement('source', { src: './assets/video/' + this.state.fileName + '.ogv', type: 'video/ogg' }),
+	              _react2['default'].createElement('source', { src: './assets/video/' + this.state.fileName + '.mp4', type: 'video/mp4' }),
 	              _react2['default'].createElement(
 	                'p',
 	                null,

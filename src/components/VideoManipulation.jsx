@@ -7,6 +7,7 @@ class VideoManipulation extends Component {
   constructor(props){
     super(props);
     this.state = {
+      fileName: 'video_demo',
       started:false,
       thumb:false,
       timestamp: 0,
@@ -16,7 +17,6 @@ class VideoManipulation extends Component {
       volume:1,
       playback:false,
       muted:false,
-      playbackSpeed: 'normal',
       playbackSpeed:1
     }
     this.drawLoader = this.drawLoader.bind(this);
@@ -121,15 +121,16 @@ class VideoManipulation extends Component {
   drawLoader(){
     this.setState({
       thumb:false,
-      timestamp:0
+      timestamp:0,
+      playbackSpeed:1
     });
     this.ctx.clearRect(0,0,this.w,this.h);
     this.ctx.font = "20px sans-serif";
     this.ctx.fillStyle = "#c0c0c0";
     this.ctx.textAlign = "center";
-    this.ctx.fillText("Waiting for Screenshot...",(this.w/2),(this.h/2));
+    this.ctx.fillText("Waiting for Thumbnail...",(this.w/2),(this.h/2));
     this.ctx.strokeStyle = "rgba(225,225,225, 0.20)";
-    this.ctx.strokeText("Waiting for Screenshot...",(this.w/2),(this.h/2));
+    this.ctx.strokeText("Waiting for Thumbnail...",(this.w/2),(this.h/2));
   }
   drawThumb(){
     this.setState({
@@ -143,9 +144,21 @@ class VideoManipulation extends Component {
     var aLink = document.createElement('a');
     var evt = document.createEvent("HTMLEvents");
     evt.initEvent("click");
-    aLink.download = 'thumb_'+this.state.timestamp+'.png';
+    aLink.download = this.state.fileName+'_thumb_'+this.state.timestamp+'.png';
     aLink.href = image;
     aLink.dispatchEvent(evt);
+  }
+  handleVideoChange(e){
+      this.setState({
+        fileName: e.target.value
+      },function(){
+        this.reloadVideo()
+      }.bind(this)
+    ) ;
+  }
+  reloadVideo() {
+    this.video.load();
+    this.drawLoader();
   }
   render() {
     var timelineStyle = {
@@ -156,14 +169,16 @@ class VideoManipulation extends Component {
     }
    return (
      <div className="page mt20">
-       <div className="action-buttons row">
+       <div className="action-buttons light row">
          <div className="col-sm-6">
            <div className="action-buttons row">
-             <div className="col-xs-6 col-sm-6 text-left">
-               <button type="button" className="btn btn-primary" onClick={this.drawThumb}>Generate Thumbnail</button>
-               <button type="button" className="btn btn-danger" onClick={this.drawLoader}>Clear</button>
+             <div className="col-xs-6 col-sm-4 text-left">
+               <select className="form-control" onChange={(e)=>{this.handleVideoChange(e)}}>
+                  <option value="video_demo">Video Demo 1</option>
+                  <option value="video_demo2">Video Demo 2</option>
+               </select>
              </div>
-             <div className="col-xs-6 col-sm-4 col-sm-offset-2 text-right">
+             <div className="col-xs-6 col-sm-4 col-sm-offset-4 text-right">
                <div className="input-group">
                 <span className={"input-group-addon "+ (this.state.playbackSpeed==0.5 ? "active" : "")} onClick={this.handlePlaybackSpeed.bind(this,0.5)}>.5x</span>
                 <span className={"input-group-addon "+ (this.state.playbackSpeed==1 ? "active" : "")} onClick={this.handlePlaybackSpeed.bind(this,1)}>1x</span>
@@ -173,7 +188,15 @@ class VideoManipulation extends Component {
            </div>
          </div>
          <div className="col-sm-6 text-right">
-           <button type="button" className={' btn btn-success ' + (this.state.thumb?'visible':'hidden')} onClick={this.downloadImage}>Save Screenshot</button>
+           <div className="action-buttons row">
+             <div className="col-sm-6 text-left">
+               <button type="button" className="btn btn-primary" onClick={this.drawThumb}>Generate Thumbnail</button>
+             </div>
+             <div className="col-sm-6 text-right">
+               <button type="button" className={'btn btn-success ' + (this.state.thumb?'visible':'hidden')} onClick={this.downloadImage}>Save Thumbnail</button>
+               <button type="button" className={'btn btn-danger ' + (this.state.thumb?'visible':'hidden')} onClick={this.drawLoader}>Clear</button>
+             </div>
+           </div>
          </div>
        </div>
        <div className="row">
@@ -210,15 +233,13 @@ class VideoManipulation extends Component {
                </div>
              </div>
            </div>
-          <video id='v' loop width="500" ref="video">
-            <source src='./assets/video/video_demo.webm' type='video/webm' />
-            <source src='./assets/video/video_demo.ogv' type='video/ogg' />
-            <source src='./assets/video/video_demo.mp4' type='video/mp4' />
+          <video id='v' loop width="500" ref="video" className={this.state.fileName}>
+            <source src={'./assets/video/'+this.state.fileName+'.webm'} type='video/webm' />
+            <source src={'./assets/video/'+this.state.fileName+'.ogv'} type='video/ogg' />
+            <source src={'./assets/video/'+this.state.fileName+'.mp4'} type='video/mp4' />
             <p>Your browser does not support the video tag.</p>
 
           </video>
-
-
         </div>
         <div className="col-xs-12 col-sm-6">
           <canvas ref="canvas" />
