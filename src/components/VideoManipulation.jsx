@@ -114,14 +114,29 @@ class VideoManipulation extends Component {
     }.bind(this));
   }
   handleFullscreen(){
-    this.video.webkitEnterFullscreen();
-    this.video.mozRequestFullScreen();
+
+    if (this.video.requestFullscreen) {
+      this.video.requestFullscreen();
+    } else if (this.video.msRequestFullscreen) {
+      this.video.msRequestFullscreen();
+    } else if (this.video.mozRequestFullScreen) {
+      this.video.mozRequestFullScreen();
+    } else if (this.video.webkitRequestFullscreen) {
+      this.video.webkitRequestFullscreen();
+    }
     return false;
   }
   drawLoader(){
     this.setState({
+      started:false,
       thumb:false,
-      timestamp:0,
+      timestamp: 0,
+      duration:false,
+      currentTime:"0:0",
+      timePercent:0+"%",
+      volume:1,
+      playback:false,
+      muted:false,
       playbackSpeed:1
     });
     this.ctx.clearRect(0,0,this.w,this.h);
