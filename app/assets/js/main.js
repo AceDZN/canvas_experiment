@@ -25372,6 +25372,8 @@
 	  value: true
 	});
 
+	var _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; };
+
 	var _createClass = (function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ('value' in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; })();
 
 	var _get = function get(_x, _x2, _x3) { var _again = true; _function: while (_again) { var object = _x, property = _x2, receiver = _x3; _again = false; if (object === null) object = Function.prototype; var desc = Object.getOwnPropertyDescriptor(object, property); if (desc === undefined) { var parent = Object.getPrototypeOf(object); if (parent === null) { return undefined; } else { _x = parent; _x2 = property; _x3 = receiver; _again = true; desc = parent = undefined; continue _function; } } else if ('value' in desc) { return desc.value; } else { var getter = desc.get; if (getter === undefined) { return undefined; } return getter.call(receiver); } } };
@@ -25392,6 +25394,20 @@
 
 	var _IconicDisplayJsx2 = _interopRequireDefault(_IconicDisplayJsx);
 
+	var defaultState = {
+	  started: false,
+	  thumb: false,
+	  timestamp: 0,
+	  duration: false,
+	  currentTime: "0:0",
+	  timePercent: 0 + "%",
+	  volume: 1,
+	  playback: false,
+	  muted: false,
+	  playbackSpeed: 1,
+	  videoEffect: 0
+	};
+
 	var VideoManipulation = (function (_Component) {
 	  _inherits(VideoManipulation, _Component);
 
@@ -25399,19 +25415,10 @@
 	    _classCallCheck(this, VideoManipulation);
 
 	    _get(Object.getPrototypeOf(VideoManipulation.prototype), 'constructor', this).call(this, props);
-	    this.state = {
-	      fileName: 'video_demo',
-	      started: false,
-	      thumb: false,
-	      timestamp: 0,
-	      duration: false,
-	      currentTime: "0:0",
-	      timePercent: 0 + "%",
-	      volume: 1,
-	      playback: false,
-	      muted: false,
-	      playbackSpeed: 1
-	    };
+	    this.state = _extends({
+	      fileName: 'video_demo'
+	    }, defaultState);
+
 	    this.drawLoader = this.drawLoader.bind(this);
 	    this.drawThumb = this.drawThumb.bind(this);
 	    this.downloadImage = this.downloadImage.bind(this);
@@ -25420,6 +25427,11 @@
 	    this.handleMute = this.handleMute.bind(this);
 	    this.handleVolumeChange = this.handleVolumeChange.bind(this);
 	    this.handleFullscreen = this.handleFullscreen.bind(this);
+	    this.videoLoopInCanvas = this.videoLoopInCanvas.bind(this);
+	    this.filterCanvas = this.filterCanvas.bind(this);
+	    this.grayscaleFilter = this.grayscaleFilter.bind(this);
+	    this.invertFilter = this.invertFilter.bind(this);
+	    this.playbackWithEffect = this.playbackWithEffect.bind(this);
 	  }
 
 	  _createClass(VideoManipulation, [{
@@ -25428,15 +25440,41 @@
 	  }, {
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
+	      this.initCanvas();
+	      this.drawLoader();
+	      this.drawControllers();
+	      this.videoLoopInCanvas();
+	    }
+	  }, {
+	    key: 'initCanvas',
+	    value: function initCanvas() {
 	      this.canvas = this.refs.canvas;
+	      this.video_canvas = this.refs.video_canvas;
 	      this.video = this.refs.video;
+	      this.vw = this.video_canvas.clientWidth;
+	      this.vh = this.video_canvas.clientHeight;
 	      this.w = this.canvas.clientWidth;
 	      this.h = this.canvas.clientHeight;
+	      this.vctx = this.video_canvas.getContext('2d');
+	      this.vctx.canvas.width = this.vw;
+	      this.vctx.canvas.height = this.vh;
 	      this.ctx = this.canvas.getContext('2d');
 	      this.ctx.canvas.width = this.w;
 	      this.ctx.canvas.height = this.h;
-	      this.drawLoader();
-	      this.drawControllers();
+
+	      this.vctx.fillStyle = '#0f0f0f';
+	      this.vctx.fillRect(0, 0, this.vw, this.vh);
+	      this.vctx.strokeStyle = '#ffffff';
+	      this.vctx.strokeRect(0, 0, this.vw, this.vh);
+	    }
+	  }, {
+	    key: 'videoLoopInCanvas',
+	    value: function videoLoopInCanvas() {
+	      this.vctx.canvas.width = this.video.videoWidth;
+	      this.vctx.canvas.height = this.video.videoHeight;
+
+	      this.playbackWithEffect();
+	      window.setTimeout(this.videoLoopInCanvas, 10);
 	    }
 	  }, {
 	    key: 'handleVideoPlayback',
@@ -25455,6 +25493,7 @@
 	          this.video.pause();
 	        }).bind(this));
 	      }
+
 	      return false;
 	    }
 	  }, {
@@ -25470,12 +25509,16 @@
 	  }, {
 	    key: 'handleVolumeChange',
 	    value: function handleVolumeChange(e) {
-
 	      this.setState({
 	        volume: e.target.value
 	      }, function () {
 	        this.video.volume = this.state.volume;
 	      });
+	    }
+	  }, {
+	    key: 'handlePlaybackLocation',
+	    value: function handlePlaybackLocation(e) {
+	      console.log(e.target, '');
 	    }
 	  }, {
 	    key: 'handlePlaybackSpeed',
@@ -25498,11 +25541,9 @@
 	        });
 	      }).bind(this));
 	      this.video.addEventListener("timeupdate", (function () {
-
 	        var minutes = Math.floor(this.video.currentTime / 60);
 	        var seconds = this.video.currentTime - minutes * 60;
 	        var currentTime = parseInt(minutes) + ":" + parseInt(seconds);
-
 	        var maxduration = this.video.duration;
 	        var percentage = 100 * this.video.currentTime / maxduration;
 
@@ -25515,7 +25556,6 @@
 	  }, {
 	    key: 'handleFullscreen',
 	    value: function handleFullscreen() {
-
 	      if (this.video.requestFullscreen) {
 	        this.video.requestFullscreen();
 	      } else if (this.video.msRequestFullscreen) {
@@ -25530,18 +25570,7 @@
 	  }, {
 	    key: 'drawLoader',
 	    value: function drawLoader() {
-	      this.setState({
-	        started: false,
-	        thumb: false,
-	        timestamp: 0,
-	        duration: false,
-	        currentTime: "0:0",
-	        timePercent: 0 + "%",
-	        volume: 1,
-	        playback: false,
-	        muted: false,
-	        playbackSpeed: 1
-	      });
+	      this.setState(defaultState);
 	      this.ctx.clearRect(0, 0, this.w, this.h);
 	      this.ctx.font = "20px sans-serif";
 	      this.ctx.fillStyle = "#c0c0c0";
@@ -25557,7 +25586,7 @@
 	        thumb: true,
 	        timestamp: this.video.currentTime
 	      });
-	      this.ctx.drawImage(this.video, 0, 0, this.w, this.h);
+	      this.ctx.drawImage(this.video_canvas, 0, 0, this.w, this.h);
 	    }
 	  }, {
 	    key: 'downloadImage',
@@ -25572,12 +25601,71 @@
 	    }
 	  }, {
 	    key: 'handleVideoChange',
-	    value: function handleVideoChange(e) {
+	    value: function handleVideoChange(fileName) {
 	      this.setState({
-	        fileName: e.target.value
+	        fileName: fileName
 	      }, (function () {
 	        this.reloadVideo();
 	      }).bind(this));
+	    }
+	  }, {
+	    key: 'filterCanvas',
+	    value: function filterCanvas(filter, firterargs) {
+	      if (this.vw > 0 && this.vh > 0) {
+	        this.vctx.drawImage(this.video, 0, 0, this.vctx.canvas.width, this.vctx.canvas.height);
+	        var imageData = this.vctx.getImageData(0, 0, this.vctx.canvas.width, this.vctx.canvas.height);
+	        filter(imageData, firterargs);
+	        this.vctx.putImageData(imageData, 0, 0);
+	      }
+	    }
+	  }, {
+	    key: 'invertFilter',
+	    value: function invertFilter(pixels) {
+	      var d = pixels.data;
+	      for (var i = 0; i < d.length; i += 4) {
+	        d[i] = 255 - d[i]; // red
+	        d[i + 1] = 255 - d[i + 1]; // green
+	        d[i + 2] = 255 - d[i + 2]; // blue
+	      }
+	      return pixels;
+	    }
+	  }, {
+	    key: 'grayscaleFilter',
+	    value: function grayscaleFilter(pixels) {
+	      var d = pixels.data;
+	      for (var i = 0; i < d.length; i += 4) {
+	        var r = d[i];
+	        var g = d[i + 1];
+	        var b = d[i + 2];
+	        d[i] = d[i + 1] = d[i + 2] = (r + g + b) / 3;
+	      }
+	      return pixels;
+	    }
+	  }, {
+	    key: 'playbackWithEffect',
+	    value: function playbackWithEffect() {
+	      switch (this.state.videoEffect) {
+	        case 1:
+	          this.filterCanvas(this.grayscaleFilter);
+	          break;
+	        case 2:
+	          this.filterCanvas(this.invertFilter);
+	          break;
+	        case 3:
+	          //this.filterCanvas(this.sharpenFilter);
+	          break;
+	        default:
+	          this.vctx.drawImage(this.video, 0, 0);
+	          break;
+	      }
+	    }
+	  }, {
+	    key: 'handleEffect',
+	    value: function handleEffect(videoEffect) {
+	      this.setState({
+	        videoEffect: videoEffect
+	      });
+	      return;
 	    }
 	  }, {
 	    key: 'reloadVideo',
@@ -25590,12 +25678,9 @@
 	    value: function render() {
 	      var _this = this;
 
-	      var timelineStyle = {
-	        width: this.state.timePercent
-	      };
-	      var volumeKnobStyle = {
-	        left: this.state.volumePercent
-	      };
+	      var timelineStyle = { width: this.state.timePercent };
+	      var volumeKnobStyle = { left: this.state.volumePercent };
+
 	      return _react2['default'].createElement(
 	        'div',
 	        { className: 'page mt20' },
@@ -25612,41 +25697,87 @@
 	                'div',
 	                { className: 'col-xs-6 col-sm-4 text-left' },
 	                _react2['default'].createElement(
-	                  'select',
-	                  { className: 'form-control', onChange: function (e) {
-	                      _this.handleVideoChange(e);
-	                    } },
+	                  'div',
+	                  { className: 'input-group' },
 	                  _react2['default'].createElement(
-	                    'option',
-	                    { value: 'video_demo' },
-	                    'Video Demo 1'
+	                    'span',
+	                    { className: 'input-group-addon lbl' },
+	                    _react2['default'].createElement(
+	                      'label',
+	                      null,
+	                      'video'
+	                    )
 	                  ),
 	                  _react2['default'].createElement(
-	                    'option',
-	                    { value: 'video_demo2' },
-	                    'Video Demo 2'
+	                    'span',
+	                    { onClick: function () {
+	                        _this.handleVideoChange("video_demo");
+	                      }, className: "input-group-addon btn " + (this.state.fileName == "video_demo" ? "active" : "") },
+	                    '1'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { onClick: function () {
+	                        _this.handleVideoChange("video_demo2");
+	                      }, className: "input-group-addon btn " + (this.state.fileName == "video_demo2" ? "active" : "") },
+	                    '2'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { onClick: function () {
+	                        _this.handleVideoChange("video_demo3");
+	                      }, className: "input-group-addon btn " + (this.state.fileName == "video_demo3" ? "active" : "") },
+	                    '3'
 	                  )
 	                )
 	              ),
 	              _react2['default'].createElement(
 	                'div',
-	                { className: 'col-xs-6 col-sm-4 col-sm-offset-4 text-right' },
+	                { className: 'col-xs-6 col-sm-4 text-center' },
 	                _react2['default'].createElement(
 	                  'div',
 	                  { className: 'input-group' },
 	                  _react2['default'].createElement(
 	                    'span',
-	                    { className: "input-group-addon " + (this.state.playbackSpeed == 0.5 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 0.5) },
+	                    { className: "input-group-addon btn " + (this.state.videoEffect == 0 ? "active" : ""), onClick: this.handleEffect.bind(this, 0) },
+	                    'N'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon btn " + (this.state.videoEffect == 1 ? "active" : ""), onClick: this.handleEffect.bind(this, 1) },
+	                    'BW'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon btn " + (this.state.videoEffect == 2 ? "active" : ""), onClick: this.handleEffect.bind(this, 2) },
+	                    'I'
+	                  ),
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon btn " + (this.state.videoEffect == 3 ? "active" : ""), onClick: this.handleEffect.bind(this, 3) },
+	                    'S'
+	                  )
+	                )
+	              ),
+	              _react2['default'].createElement(
+	                'div',
+	                { className: 'col-xs-6 col-sm-4 text-right' },
+	                _react2['default'].createElement(
+	                  'div',
+	                  { className: 'input-group' },
+	                  _react2['default'].createElement(
+	                    'span',
+	                    { className: "input-group-addon btn " + (this.state.playbackSpeed == 0.5 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 0.5) },
 	                    '.5x'
 	                  ),
 	                  _react2['default'].createElement(
 	                    'span',
-	                    { className: "input-group-addon " + (this.state.playbackSpeed == 1 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 1) },
+	                    { className: "input-group-addon btn " + (this.state.playbackSpeed == 1 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 1) },
 	                    '1x'
 	                  ),
 	                  _react2['default'].createElement(
 	                    'span',
-	                    { className: "input-group-addon " + (this.state.playbackSpeed == 2 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 2) },
+	                    { className: "input-group-addon btn " + (this.state.playbackSpeed == 2 ? "active" : ""), onClick: this.handlePlaybackSpeed.bind(this, 2) },
 	                    '2x'
 	                  )
 	                )
@@ -25749,6 +25880,7 @@
 	                )
 	              )
 	            ),
+	            _react2['default'].createElement('canvas', { ref: 'video_canvas' }),
 	            _react2['default'].createElement(
 	              'video',
 	              { id: 'v', loop: true, width: '500', ref: 'video', className: this.state.fileName },
